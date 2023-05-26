@@ -10,9 +10,11 @@
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "release":"release-it"
+    "release": "release-it"
   },
   "dependencies": {
+    "@bugsnag/js": "^7.20.2",
+    "@bugsnag/plugin-express": "^7.19.0",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@emotion/react": "^11.11.0",
