@@ -1,0 +1,26 @@
+/* Colors */
+/* Fonts */
+:export {
+  primaryColor: #FAFAFA;
+  secondaryColor: #1a73e8;
+  tertiaryColor: #1B3A57;
+  successColor: #00BFA5;
+  errorColor: #FF5252;
+  fontColor: #1B3A57;
+  fontTitle: "Google Sans Mono", "Courier New", serif;
+  fontDefault: "Google Sans", "Roboto", sans-serif;
+}
+
+.container {
+  font-size: 84px;
+  margin-top: 0.2em;
+}
+
+.buttons {
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.login-button {
+  background-color: #FAFAFA;
+}/*# sourceMappingURL=landing.module.css.map */
