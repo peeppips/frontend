@@ -54,7 +54,11 @@ complete it with a React frontend:
                 | ---- referralReducer.tsx
                 | ---- userReducer.tsx
             | --- screens/
-                | --- HostBotScreen.tsx
+                | --- HostBotScreen1.tsx
+                | --- HostBotScreen2.tsx
+                | --- HostBotScreen3.tsx
+                | --- HostBotScreen4.tsx
+                | --- HostBotScreen5.tsx
                 | --- LoginScreen.tsx
                 | --- RegisterScreen.tsx
             | --- App.tsx
@@ -155,14 +159,21 @@ The Provider component wraps the App component, providing access to the Redux st
 
 ## Adding a Routes to MainRouter in App.tsx
 
+
     import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
     import Header from './components/Header';
     import Footer from './components/Footer';
     import LoginScreen from './screens/LoginScreen';
     import RegisterScreen from './screens/RegisterScreen';
+
     import './App.css';
-    import HostBotScreen from './screens/HostBotScreen';
     import NewProjectScreen from './screens/NewProjectScreen';
+    import ResellingEstimateForm from './screens/HosBotScreen1';
+    import PlatformQuestionForm from './screens/HosBotScreen2';
+    import BrokerQuestionForm from './screens/HosBotScreen3';
+    import UploadBotForm from './screens/HosBotScreen4';
+    import DeployBotForm from './screens/HosBotScreen5';
 
     function App() {
     return (
@@ -170,12 +181,23 @@ The Provider component wraps the App component, providing access to the Redux st
         <Router>
             <Header />
             <main className='py-3'>
-            <Routes>
+            
+                <Routes>
                 <Route path='/' element={<LoginScreen />} />
                 <Route path='/register' element={<RegisterScreen />} />
-                <Route path='/host-bots' element={<HostBotScreen />} />
-                <Route path='/my-project/new' element={<NewProjectScreen />} />
-            </Routes>
+                
+                <Route path='/host-bots/1' element={<ResellingEstimateForm/>} />
+                <Route path='/host-bot/2' element={<PlatformQuestionForm/>} />
+                <Route path='/host-bot/3' element={<BrokerQuestionForm/>} />
+                <Route path='/host-bot/4' element={<UploadBotForm/>} />
+                <Route path='/host-bot/5' element={<DeployBotForm/>} />
+
+                <Route path='/my-project/new' element={<NewProjectScreen/>} />
+
+                
+
+                </Routes>
+            
             </main>
             <Footer />
         </Router>
@@ -183,7 +205,8 @@ The Provider component wraps the App component, providing access to the Redux st
     );
     }
 
-        export default App;
+    export default App;
+
 
 
 The BrowserRouter component from react-router-dom is used to provide the routing functionality.
@@ -388,83 +411,46 @@ This component is responsible for capturing and managing user details, including
 
 The authenticate function is called when the user clicks the "Authenticate Email" button. It is currently incomplete and presumably used for email authentication purposes.The component renders a form that allows the user to input their details. The form includes input fields for first name, last name, email, password, and confirm password. When the user clicks the "Authenticate Email" button, the authenticate function is called. If the email authentication is successful, the rest of the form fields become enabled, allowing the user to enter their details. Once all required fields are filled, the user can submit the form by clicking the submit button.Overall, the UserDetails component provides functionality for capturing and managing user details, including authentication. It utilizes various React hooks and external modules for form handling and displaying notifications.
 
-### HomeScreen
+### Home Screen
 
 Located at src/screens/HomeScreen.tsx
 
     const Homescreen = () => {
-    const userLogin = useSelector((state: RootState) => state.userLogin);
-
-    const { userInfo } = userLogin;
-
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-    
+   
     return(
         <main>
 
         <Container className={styles.container}>
 
-        <Modal title="Bot Details" open={isModalOpen}  onCancel={handleCancel}>
-            <BotForm/>
-        </Modal>
+    <Collapse defaultActiveKey={['1']}>
+        <Panel header="Reseach" key="1">
+            <p>
+            Our research methodology for developing a trading bot system involves a systematic approach that integrates data collection, algorithm development, and testing. We gather relevant financial data from diverse sources and preprocess it to ensure accuracy and consistency. Advanced machine learning algorithms are then developed to analyze the data and generate trading signals. These algorithms undergo rigorous testing and validation using historical data to assess their performance and effectiveness. The research process focuses on optimizing trading strategies, implementing risk management techniques, and ensuring compliance with regulatory guidelines. Through continuous monitoring and maintenance, we strive to create a reliable and adaptive trading bot system capable of maximizing profitability while minimizing risks.
+            </p>
+        </Panel>
+        <Panel header="Business" key="2">
+            <p>Our research methodology for business analysis follows a comprehensive approach to gather relevant data from diverse sources and analyze it using quantitative and qualitative techniques. Through data collection and rigorous analysis, we derive meaningful insights that inform strategic decision-making. The results are interpreted in the context of the research objectives and used to formulate effective business strategies. Continuous monitoring and evaluation ensure that the strategies are implemented successfully and adapted to evolving market dynamics. By employing this research methodology, we provide businesses with valuable insights and recommendations to drive growth, improve competitiveness, and enhance overall performance.</p>
+        </Panel>
+        <Panel header="Free Bots" key="3">
+            <p>Free bots refer to automated software programs that perform specific tasks or functions without any cost to the user. These bots are designed to streamline and automate various processes, such as customer service, data analysis, social media management, or trading activities. The research methodology for evaluating free bots typically involves assessing their features, capabilities, user reviews, and compatibility with specific requirements. It also includes testing the bot's performance, reliability, security, and scalability to ensure its effectiveness in achieving the desired outcomes. The research aims to identify and recommend reliable free bots that offer value and efficiency to users, enabling them to optimize their operations and save time and resources.</p>
+        </Panel>
+                <Panel header="Subscribe to Our Newsletter" key="4">
+            <p>Subscribing to our newsletter offers a valuable opportunity to stay informed and up-to-date with the latest developments in our industry. By joining our newsletter community, you gain access to exclusive content, industry insights, expert analysis, and upcoming events or promotions. Our carefully curated newsletter delivers relevant information directly to your inbox, saving you time and effort in seeking out valuable resources. Subscribers also receive early access to new products or services, special discounts, and personalized recommendations. Don't miss out on the chance to enhance your knowledge, stay connected, and maximize your opportunities by subscribing to our newsletter today.</p>
+        </Panel>
+                <Panel header="I want you to create a trading bot for me" key="5">
+            <p>
+            If you're seeking a customized trading bot tailored to your specific needs, we can provide you with a comprehensive solution. Our team of experts specializes in developing sophisticated trading bots that leverage cutting-edge technologies and advanced algorithms. By understanding your trading goals, risk appetite, and desired strategies, we can create a bot that automates your trading activities, monitors market conditions, executes trades, and optimizes your portfolio. With a focus on performance, reliability, and risk management, our trading bot will aim to maximize your potential returns while minimizing risks. Let us help you streamline your trading process and unlock new opportunities with a personalized trading bot designed just for you.
+            </p>
+        </Panel>
+
+                    <Panel header="I have a trading bot that I want you to host and to help me  resell (Host Bot)" key="6">
+            <p>If you have a trading bot that you want to host and resell, we can provide you with the necessary infrastructure and support to make it a success. Our hosting services offer a secure and reliable environment for your bot, ensuring its continuous operation and optimal performance. Additionally, we can assist you in marketing and reselling your bot by leveraging our network and expertise in the trading industry. With our partnership, you can expand your reach, gain access to a wider customer base, and enhance your bot's visibility in the market. Let us help you unlock the potential of your trading bot by providing hosting services and strategic guidance for successful reselling.</p>
+                    <Link className="btn btn-primary" to="/host-bots/1">Get Started</Link>
+
+        </Panel>
+
         
-            <Grid container spacing={4}>
-            
-            
-            {userInfo && <> {userInfo['isAdmin'] ? <> 
-            <Grid item sm={12} xs={12} md={6}>
-                    <Link to={'/research'}>
-                    <Cardcomponent image={`https://leverageedublog.s3.ap-south-1.amazonaws.com/blog/wp-content/uploads/2020/03/28214113/Types-of-Research-Design.jpg`} title={`Research`} description={`/research`}/>
-                    </Link>
-                </Grid>
-                <Grid item sm={12} xs={12} md={6}>
-                <Link to={'/business'}>
-                    
-                    <Cardcomponent image={`https://www.xero.com/content/dam/xero/pilot-images/guides/how-to-start-an-online-business-guide/htsob-guide-hero.1648510683285.png`} title={`Business`} description={`/business`}/>
-
-                    </Link>
-                </Grid>
-            </>: <></>} </>}
-            
-                
-                <Grid item sm={12} xs={12} md={6}>
-                <Link to={'/free-bots'}> 
-                <Cardcomponent image={`https://www.addtelegrammember.com/wp-content/webpc-passthru.php?src=https://www.addtelegrammember.com/wp-content/uploads/2020/12/Telegram-Bot-1200x600.jpg&nocache=1`} title={`Free Bots`} description={`/free-bots`}/>
-
-                    </Link>
-                </Grid>
-                <Grid item sm={12} xs={12} md={6}>
-
-                <Link to={'/newsletter'}> 
-                <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`Subscribe To Our NewsLetter`} description={`/newsletter`}/>
-
-                    </Link>
-
-                    </Grid>
-                    <Grid item sm={12} xs={12} md={6}>
-                    <Link to={'https://docs.google.com/forms/d/1BNnPyTXVw46JIhJoUNjq2wU07nYR6hRIrFV858xqweg/edit?usp=forms_home&ths=true'} target="_blank" rel="noopener noreferrer"> 
-                <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I want you to create a trading bot for me`} description={`Fill the Form`}/>
-
-                    </Link>
-                    </Grid>
-
-                    <Grid onClick={showModal} item sm={12} xs={12} md={6}>
-                
-                <Cardcomponent  image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I have a trading bot that I want you to host and to help me  resell (Host Bot)`} description={`Fill the Form`}/>
-                
-                </Grid>
-
-            </Grid>
+        </Collapse>
 
 
         </Container>
@@ -472,12 +458,37 @@ Located at src/screens/HomeScreen.tsx
 
     )
     }
+The component contains multiple panels, each with a header and corresponding content. Here's a breakdown of what each panel represents:
 
- This component represents the main screen or homepage of your application. It displays various sections or cards that provide different functionalities or options to the user.The component starts by importing necessary dependencies such as React, Redux's useSelector hook, and the Modal component from the 'antd' library.Inside the component, the userLogin object is fetched from the Redux store using the useSelector hook. It extracts the userInfo property from the userLogin object.The component defines a state variable called isModalOpen using the useState hook. This variable manages the visibility of the modal component.
+    Research:
+        Description: Provides an overview of the research methodology used for developing a trading bot system.
+        Content: Explains the systematic approach involving data collection, algorithm development, testing, optimization of trading strategies, risk management, and compliance.
 
-Two helper functions are defined: showModal and handleCancel. The showModal function is called to open the modal by setting the isModalOpen state to true, while the handleCancel function is used to close the modal by setting the isModalOpen state to false.The component's JSX code includes a <main> element and a <Container> component from the Material-UI library, which provides a grid system for layout purposes.Inside the container, a modal component is rendered using the Modal component from 'antd'. It displays the title "Bot Details" and includes a custom component called BotForm as its content. The modal is conditionally rendered based on the value of the isModalOpen state variable.Next, a <Grid> component is used to display a grid layout. Inside the grid, several <Cardcomponent> components are rendered. Each card represents a different section or option available to the user.
+    Business:
+        Description: Describes the research methodology used for business analysis.
+        Content: Explains the comprehensive approach involving data gathering, quantitative and qualitative analysis, deriving insights, and formulating business strategies.
 
-The cards are conditionally rendered based on the value of the userInfo object. If the userInfo is present and the user is an admin, additional cards related to research and business are rendered. Otherwise, only the "Free Bots" and "Subscribe To Our NewsLetter" cards are displayed.The cards are implemented using the Cardcomponent custom component. Each card has an image, title, and description, along with a link to a specific route or an external link.One of the cards has an onClick event attached to it, triggering the showModal function when clicked. This card is used to open the modal for capturing bot details.Overall, the Homescreen component provides a visually appealing and functional homepage for your application. It displays different sections or options based on the user's authentication status and role. The modal component adds an interactive element for capturing bot details.
+    Free Bots:
+        Description: Discusses the research methodology for evaluating free bots.
+        Content: Describes the process of assessing features, capabilities, user reviews, compatibility, performance, reliability, security, and scalability of free bots. The goal is to recommend reliable free bots that offer value and efficiency.
+
+    Subscribe to Our Newsletter:
+        Description: Highlights the benefits of subscribing to the newsletter.
+        Content: Describes the exclusive content, industry insights, expert analysis, upcoming events or promotions, and other advantages of subscribing.
+
+    I want you to create a trading bot for me:
+        Description: Offers a customized trading bot solution.
+        Content: Explains that the team specializes in developing tailored trading bots based on the user's trading goals, risk appetite, and desired strategies. Emphasizes performance, reliability, and risk management to maximize returns.
+
+    I have a trading bot that I want you to host and help me resell (Host Bot):
+        Description: Provides hosting and reselling services for existing trading bots.
+        Content: Explains the hosting infrastructure and support provided, along with marketing and reselling assistance. Offers a link to get started with hosting services and reselling partnership.
+
+The code uses the Ant Design library's Collapse component to create the collapsible panels. Each panel is defined within a <Panel> tag, with a header attribute and corresponding content wrapped within <p> tags. The code also includes a <Container> component and uses CSS styles defined in a separate file (styles.container).
+
+
+### HomeBot Screen1
+
 
 ## Components
 
