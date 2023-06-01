@@ -14,6 +14,9 @@ import {
   UPDATE_PROJECT_REQUEST,
   UPDATE_PROJECT_SUCCESS,
   UPDATE_PROJECT_FAILURE,
+  GET_PROJECT_BY_EMAIL_FAILURE,
+  GET_PROJECT_BY_EMAIL_SUCCESS,
+  GET_PROJECT_BY_EMAIL_REQUEST,
 } from '../constants/projectConstants';
 
 export const createProjectReducer = (state = { project: {} }, action: { type: any; payload: any; }) => {
@@ -42,6 +45,8 @@ export const getAllProjectsReducer = (state = { projects: [] }, action: { type: 
   }
 };
 
+
+
 export const getProjectByIdReducer = (state = { project: {} }, action: { type: any; payload: any; }) => {
   switch (action.type) {
     case GET_PROJECT_BY_ID_REQUEST:
@@ -49,6 +54,19 @@ export const getProjectByIdReducer = (state = { project: {} }, action: { type: a
     case GET_PROJECT_BY_ID_SUCCESS:
       return { loading: false, project: action.payload };
     case GET_PROJECT_BY_ID_FAILURE:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const getProjectByUserReducer = (state = { project: {} }, action: { type: any; payload: any; }) => {
+  switch (action.type) {
+    case GET_PROJECT_BY_EMAIL_REQUEST:
+      return { loading: true };
+    case GET_PROJECT_BY_EMAIL_SUCCESS:
+      return { loading: false, projects: action.payload };
+    case GET_PROJECT_BY_EMAIL_FAILURE:
       return { loading: false, error: action.payload };
     default:
       return state;

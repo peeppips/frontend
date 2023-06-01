@@ -35,3 +35,13 @@
 .read-the-docs {
   color: #888;
 }
+.centered-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.ant-collapse-item{
+  background-color: white;
+}

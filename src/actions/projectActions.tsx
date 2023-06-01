@@ -15,18 +15,24 @@ import {
   UPDATE_PROJECT_REQUEST,
   UPDATE_PROJECT_SUCCESS,
   UPDATE_PROJECT_FAILURE,
+  GET_PROJECT_BY_EMAIL_REQUEST,
+  GET_PROJECT_BY_EMAIL_SUCCESS,
+  GET_PROJECT_BY_EMAIL_FAILURE,
 } from '../constants/projectConstants';
 
-export const createProject = (projectData: { name: string; strategy: string; apiKey: string; market: string; lotSize: string; riskManagement: string; stopLoss: string; takeProfit: string; }) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
+
+export const createProject = (projectData: { email:string;resellEstimate: string; platform: string; broker: string; server: string; uploadedFilePath: string; accountNumber: number; password: string;}) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
   try {
     dispatch({ type: CREATE_PROJECT_REQUEST });
-
+    
+    console.log("about to dispatch ",projectData)
     const { data } = await axios.post('https://peeppipsbackend.onrender.com/api/projects/', projectData);
 
     dispatch({
       type: CREATE_PROJECT_SUCCESS,
       payload: data,
     });
+
   } catch (error:any) {
     dispatch({
       type: CREATE_PROJECT_FAILURE,
@@ -102,6 +108,26 @@ export const updateProject = (projectId: any, updatedData: any) => async (dispat
   } catch (error:any) {
     dispatch({
       type: UPDATE_PROJECT_FAILURE,
+      payload: error.response?.data.message || error.message,
+    });
+  }
+};
+
+
+
+export const getProjectsByUser = (userEmail: any) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
+  try {
+    dispatch({ type: GET_PROJECT_BY_EMAIL_REQUEST });
+
+    const { data } = await axios.get(`http://localhost:5000/api/projects/user/${userEmail}`);
+    console.log("data is",data)
+    dispatch({
+      type: GET_PROJECT_BY_EMAIL_SUCCESS,
+      payload: data,
+    });
+  } catch (error:any) {
+    dispatch({
+      type: GET_PROJECT_BY_EMAIL_FAILURE,
       payload: error.response?.data.message || error.message,
     });
   }

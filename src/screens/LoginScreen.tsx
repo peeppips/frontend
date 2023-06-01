@@ -5,7 +5,7 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 // import FormContainer from '../components/FormContainer';
 import { login } from '../actions/userActions';
-import { app } from '../firebase';
+import { app, signInWithGoogle } from '../firebase';
 import { RootState } from '../store';
 import { UserLoginState } from '../types';
 import {  Container } from '@mui/material';
@@ -15,7 +15,9 @@ import styles from '../styles/landing.module.css';
 
 import { ThunkDispatch } from 'redux-thunk';
 import { AnyAction } from 'redux';
-import { Collapse } from 'antd';
+import { Collapse, Row } from 'antd';
+import DashboardIndex from './DashboardScreens/HomeScreen';
+import { USER_LOGIN_FAIL } from '../constants/userConstants';
 
 
 const auth = getAuth(app);
@@ -62,6 +64,22 @@ const { loading, error, userInfo } = userLogin;
 
   };
   
+  const loginwithg = async ()=>{
+    const details = await signInWithGoogle()
+    console.log("details are ",details)
+    const {email,error}= details
+    if (email) {
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(login({ email, password:"default" }));
+    }
+    if(error){
+      dispatch({
+        type: USER_LOGIN_FAIL,
+        payload:
+          error
+            ? error
+            : error
+      })
+    }  }
 
 
 
@@ -69,7 +87,12 @@ const { loading, error, userInfo } = userLogin;
 <>
 {/* {contextHolder} */}
 {userInfo ? (
-  <Homescreen/>):
+
+  <>
+  {userInfo?.projects ? <DashboardIndex/>: <Homescreen/>}
+  
+  </>
+):
 (
    <>
 
@@ -120,6 +143,14 @@ const { loading, error, userInfo } = userLogin;
           </Link>
                   </p>
                 </div>
+                <Row>
+                <div className="col-12 px-1">
+                <div className="text-center">
+                  <b>OR</b>
+                      <button  onClick={loginwithg} className="btn btn-block btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in with google</button>
+                    </div>
+              </div>
+                </Row>
               </div>
             </div>
             <div className="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
@@ -187,8 +218,8 @@ const Homescreen = () => {
   // const userLogin = useSelector((state: RootState) => state.userLogin);
 
   // const { userInfo } = userLogin;
-
-
+  type ExpandIconPosition = 'start' | 'end';
+  const [expandIconPosition,] = useState<ExpandIconPosition>('end');
   
   return(
     <main style={{marginTop:"5%"}}>
@@ -248,7 +279,7 @@ const Homescreen = () => {
         </Grid> */}
 
 
- <Collapse defaultActiveKey={['1']}>
+ <Collapse defaultActiveKey={['1']}  expandIconPosition={expandIconPosition}>
       <Panel header="Reseach" key="1">
         <p>
           Our research methodology for developing a trading bot system involves a systematic approach that integrates data collection, algorithm development, and testing. We gather relevant financial data from diverse sources and preprocess it to ensure accuracy and consistency. Advanced machine learning algorithms are then developed to analyze the data and generate trading signals. These algorithms undergo rigorous testing and validation using historical data to assess their performance and effectiveness. The research process focuses on optimizing trading strategies, implementing risk management techniques, and ensuring compliance with regulatory guidelines. Through continuous monitoring and maintenance, we strive to create a reliable and adaptive trading bot system capable of maximizing profitability while minimizing risks.

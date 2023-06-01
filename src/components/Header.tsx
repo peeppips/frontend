@@ -7,6 +7,7 @@ import {  Nav } from 'react-bootstrap'
 import { logout } from '../actions/userActions'
 import { RootState } from '../store';
 import { notification } from 'antd';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
 
@@ -37,11 +38,11 @@ const Header = () => {
 
   return (
 
-    <nav className="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 shadow position-absolute mt-4 py-2 start-0 end-0 mx-4">
+    <nav className="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 position-absolute mt-4 py-2 start-0 end-0 mx-4" style={{boxShadow: "none"}}>
     <div className="container-fluid">
-      <a className="navbar-brand font-weight-bolder ms-lg-0 ms-3 " href="../pages/dashboard.html">
+      <Link className="navbar-brand font-weight-bolder ms-lg-0 ms-3 " to="/">
         PEEPPIPS LTD
-      </a>
+      </Link>
       <button className="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
         <span className="navbar-toggler-icon mt-2">
           <span className="navbar-toggler-bar bar1"></span>

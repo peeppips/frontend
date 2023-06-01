@@ -17,6 +17,8 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
+// import { useDispatch } from "react-redux";
+// import { login } from "./actions/userActions";
 
 
 
@@ -45,7 +47,7 @@ const signInWithGoogle = async () => {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
     console.log(res.user);
-    const q = query(collection(db, "users"), where("uid", "==", user.uid));
+    const q = query(collection(db, "users"), where("email", "==", user.email));
     const docs = await getDocs(q);
     if (docs.docs.length > 0) {
       // await addDoc(collection(db, "users"), {
@@ -78,22 +80,22 @@ const registerWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    console.log(res.user);
+   
     const q = query(collection(db, "users"), where("uid", "==", user.uid));
     const docs = await getDocs(q);
     if (docs.docs.length === 0) {
-      // await addDoc(collection(db, "users"), {
-      //   uid: user.uid,
-      //   name: user.displayName,
-      //   authProvider: "google",
-      //   email: user.email,
-      // });
+    //   await addDoc(collection(db, "users"), {
+    //     uid: user.uid,
+    //     name: user.displayName,
+    //     authProvider: "google",
+    //     email: user.email,
+    //   });
       // const dispatch = useDispatch()
-      // dispatch(login({firstName:user.displayName,email:user.email}))
-      return({ firstName: user.displayName, email: user.email })
+      // dispatch(login({firstName:user.displayName,secondName:user.displayName,email:user.email}))
+      return({ user })
     }
     else{
-      return({ firstName: user.displayName, email: user.email,profile_pic:user.photoURL })
+      return({ user })
     }
   } catch (err) {
     console.error(err);

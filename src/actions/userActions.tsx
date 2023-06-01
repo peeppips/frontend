@@ -77,7 +77,6 @@ export const logout = () => {
   return {
     type: USER_LOGOUT
   };
-  window.location.href = '/';
 
 };
 
@@ -97,7 +96,7 @@ export const register = (userInfoDetails:{firstName:string, secondName:string, e
 
 
     const { data } = await axios.post(
-      'http://localhost:5000/api/users',
+      'https://peeppipsbackend.onrender.com/api/users',
       userInfoDetails,
       config
     )
@@ -125,13 +124,13 @@ export const register = (userInfoDetails:{firstName:string, secondName:string, e
   }
 }
 
-export const getUserDetails = (id:string) => async (dispatch: Dispatch<AnyAction>) => {
+export const getUserDetails = (email:string) => async (dispatch: Dispatch<AnyAction>) => {
   try {
     dispatch({
       type: USER_DETAILS_REQUEST,
     })
 
-    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/users/${id}`)
+    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/users/${email}`)
 
     dispatch({
       type: USER_DETAILS_SUCCESS,

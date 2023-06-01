@@ -81,11 +81,29 @@ const RegisterScreen: React.FC = () => {
 
   const authenticate = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const user = await registerWithGoogle();
-    if (user) {
-      console.log('user is ', user);
-    
+    const signupgoogledetails = await registerWithGoogle();
+   
+    if (signupgoogledetails) {
+      console.log("sadasd",signupgoogledetails);
+
+      const x_firstname = signupgoogledetails.user?.displayName;
+      const x_email = signupgoogledetails.user?.email
+
+      console.log(x_firstname,x_email)
+
+      if (x_firstname && x_email) {
+        (dispatch as ThunkDispatch<any, any, AnyAction>)(register({
+          firstName:x_firstname, secondName:x_firstname, password:"default",email:x_email
+        }));
+      }
+   
+
     }
+    // const {firstName,secondName,email,error,profile_pic} = signupgoogledetails
+
+    // if(firstName){
+    //   dispatch(register( {firstName,secondName,email,error,profile_pic}))
+    // }
   };
 
   if(email == undefined){
@@ -109,10 +127,14 @@ const RegisterScreen: React.FC = () => {
       </div>
     </div>
     <div className="container">
+      
       <div className="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
         <div className="col-xl-4 col-lg-5 col-md-7 mx-auto">
           <div className="card z-index-0">
             <div className="card-header text-center pt-4">
+            {message && <Message variant='danger'>{message}</Message>}
+      {error && <Message variant='danger'>{error}</Message>}
+      {loading && <Loader />}
               <h5>Register with</h5>
             </div>
             <div className="row px-xl-5 px-sm-4 px-3">
@@ -160,9 +182,7 @@ const RegisterScreen: React.FC = () => {
               </div>
             </div>
             <div className="card-body">
-            {message && <Message variant='danger'>{message}</Message>}
-      {error && <Message variant='danger'>{error}</Message>}
-      {loading && <Loader />}
+
             <Form onSubmit={submitHandler}>
           
 

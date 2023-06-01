@@ -10,6 +10,7 @@ import {
   userListReducer,
   userDeleteReducer,
   userUpdateReducer,
+  userReferralsReducer,
 } from './reducers/userReducers'
 
 import {
@@ -26,6 +27,7 @@ import {
   createProjectReducer,
   updateProjectReducer,
   deleteProjectReducer,
+  getProjectByUserReducer,
 } from './reducers/projectReducers';
 
 import {
@@ -44,13 +46,15 @@ const reducer = combineReducers({
   userList: userListReducer,
   userDelete: userDeleteReducer,
   userUpdate: userUpdateReducer,
+  userReferrals: userReferralsReducer,
+
 
   projectList: getAllProjectsReducer,
   projectDetails: getProjectByIdReducer,
   projectCreate: createProjectReducer,
   projectUpdate: updateProjectReducer,
   projectDelete: deleteProjectReducer,
-  // projectListByUser: getProjectsByUserReducer,
+  projectListByUser: getProjectByUserReducer,
 
   allBrokers: getAllBrokersReducer,
   brokerById: getBrokerByIdReducer,

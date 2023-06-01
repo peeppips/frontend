@@ -25,6 +25,9 @@ import {
   USER_UPDATE_SUCCESS,
   USER_UPDATE_FAIL,
   USER_UPDATE_PROFILE_RESET,
+  GET_REFERRALS_BY_EMAIL_REQUEST,
+  GET_REFERRALS_BY_EMAIL_FAILURE,
+  GET_REFERRALS_BY_EMAIL_SUCCESS,
 } from '../constants/userConstants'
 
 export const userLoginReducer = (state = {userLogin:{}}, action: { type: any; payload: any }) => {
@@ -97,6 +100,21 @@ export const userListReducer = (state = { users: [] }, action: { type: any; payl
       return { loading: false, error: action.payload }
     case USER_LIST_RESET:
       return { users: [] }
+    default:
+      return state
+  }
+}
+
+export const userReferralsReducer = (state = { referrals: [] }, action: { type: any; payload: any }) => {
+  switch (action.type) {
+    case GET_REFERRALS_BY_EMAIL_REQUEST:
+      return { loading: true }
+    case GET_REFERRALS_BY_EMAIL_SUCCESS:
+      return { loading: false, referrals: action.payload }
+    case GET_REFERRALS_BY_EMAIL_FAILURE:
+      return { loading: false, referrals: action.payload }
+    case USER_LIST_RESET:
+      return { referrals: [] }
     default:
       return state
   }
