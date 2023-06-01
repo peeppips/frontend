@@ -40,6 +40,8 @@ function App() {
               <Route path='/profile' element={<ProfileScreen/>} />''
               
               
+              {/* <Route path='/my-project/new' element={<NewProjectScreen/>} /> */}
+              {/* <Route path='/dashboard' element={<DashboardIndex/>} /> */}
               
               
              
