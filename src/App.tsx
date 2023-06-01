@@ -14,6 +14,7 @@ import BrokerQuestionForm from './screens/HosBotScreen3';
 import UploadBotForm from './screens/HosBotScreen4';
 import DeployBotForm from './screens/HosBotScreen5';
 import ProjectScreen from './screens/DashboardScreens/ProjectScreen';
+import BrokersScreen from './screens/DashboardScreens/BrokersScreen';
 
 
 
@@ -34,6 +35,8 @@ function App() {
               <Route path='/host-bot/4' element={<UploadBotForm/>} />
               <Route path='/host-bot/5' element={<DeployBotForm/>} />
               <Route path='/projects' element={<ProjectScreen/>} />''
+              <Route path='/brokers' element={<BrokersScreen/>} />''
+              
               
               {/* <Route path='/my-project/new' element={<NewProjectScreen/>} /> */}
               {/* <Route path='/dashboard' element={<DashboardIndex/>} /> */}
