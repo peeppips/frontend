@@ -1,57 +1,74 @@
-import {   useEffect } from "react";
-// import { Button, Col, Form } from "react-bootstrap";
-import { getUserDetails } from "../../actions/userActions";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { UserLoginState, projectListByUserState } from "../../types";
-import { getProjectsByUser } from "../../actions/projectActions";
-import { Button, Table } from "react-bootstrap";
-import DashboardSidebar from "./components/Sidebar";
+import { Form, Button, Row, Col } from 'react-bootstrap'
+import { useDispatch, useSelector } from 'react-redux'
+import Message from '../../components/Message'
+import Loader from '../../components/Loader'
+import { getUserDetails, updateUserProfile } from '../../actions/userActions'
+import { USER_UPDATE_PROFILE_RESET } from '../../constants/userConstants'
+import DashboardSidebar from './components/Sidebar'
+import { useNavigate } from 'react-router-dom'
+import { UserLoginState, userDetailsState } from '../../types'
+import { RootState } from '../../store'
+import { AnyAction } from 'redux'
+import { ThunkDispatch } from 'redux-thunk'
+import { useEffect, useState } from 'react'
+ 
+const ProfileScreen = () => {
+  const [firstName, setfirstName] = useState('')
+  const [secondName, setsecondName] = useState('')
 
- const DashboardIndex = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [message, setMessage] = useState<string | null>(null);
 
-  
   const dispatch = useDispatch()
 
-  const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
+  const userDetails = useSelector((state: RootState): userDetailsState => state.userDetails as userDetailsState);  
+  const { loading, error, user } = userDetails
 
+
+
+  const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
   const { userInfo } = userLogin
 
-  const projectListByUser = useSelector((state: RootState): projectListByUserState => state.projectListByUser as projectListByUserState);  
+  const userUpdateProfile = useSelector((state: RootState): userDetailsState => state.userUpdateProfile as userDetailsState);  
+  const { success } = userUpdateProfile
 
-  const { projects } = projectListByUser
-
+  const navigate =useNavigate()
 
   useEffect(() => {
     if (!userInfo) {
-      
+      navigate('/')
     } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo.token,userInfo.user.email));
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.user.email));
-      
-       
-        
+      if (!user || !user.firstName || success) {
+        (dispatch as ThunkDispatch<any, any, AnyAction>)({ type: USER_UPDATE_PROFILE_RESET });
+
+        (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo?.token,userInfo?.user?.email));
+
+      } else {
+        setfirstName(user.firstName)
+        setEmail(user.email)
+        setsecondName(user.secondName)
       }
-    
-  }, [dispatch, userInfo])
-
-  useEffect(() => {
-    if (projects == undefined) {
-      console.log("projects is undefined:", projects);
     }
-    else{
-console.log("projects is ",projects);
+  }, [dispatch, history, userInfo])
 
+  const submitHandler = (e: { preventDefault: () => void }) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      setMessage('Passwords do not match')
+    } else {
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(updateUserProfile({ firstName,secondName, email, password }));
     }
-  }, [projects]);
-  
+  }
+
 
     return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
-        <DashboardSidebar/>
+              <DashboardSidebar/>
+
+
   <main className="main-content position-relative border-radius-lg ">
  
     <nav className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
@@ -179,7 +196,7 @@ console.log("projects is ",projects);
                   <div className="numbers">
                     <p className="text-sm mb-0 text-uppercase font-weight-bold">My Projects</p>
                     <h5 className="font-weight-bolder">
-                    {projects?.length}
+                   
                     </h5>
                     {/* <p className="mb-0">
                       <span className="text-success text-sm font-weight-bolder">+55%</span>
@@ -273,144 +290,87 @@ console.log("projects is ",projects);
       </div>
   
       <div className="row mt-4">
-        <div className="col-lg-7 mb-lg-0 mb-4">
+        <div className="col-lg-12 mb-lg-0 mb-4">
           <div className="card ">
             <div className="card-header pb-0 p-3">
               <div className="d-flex justify-content-between">
-                <h6 className="mb-2">My Referrals</h6>
+                {/* <h6 className="mb-2">My Profile</h6> */}
+
               </div>
             </div>
 
             <div className="card-body">
           
-            <Table striped bordered hover variant="dark">
-      <thead>
-        <tr>
-          <th>#</th>
-          {/* <th>First Name</th>
-          <th>Second Name</th> */}
-          <th>Email</th>
-          <th>Project</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>devngecu@gmail.com</td>
-          <td>Diamond</td>
-          <td>
-          <Button>
-              View
-            </Button>
+            <Row>
+      <Col md={12}>
+        <h2>User Profile</h2>
+        {message && <Message variant='danger'>{message}</Message>}
+        {}
+        {success && <Message variant='success'>Profile Updated</Message>}
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+          <Form onSubmit={submitHandler}>
+            <Form.Group controlId='name'>
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type='name'
+                placeholder='Enter First name'
+                value={firstName}
+                onChange={(e) => setfirstName(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
 
-            <Button variant="warning">
-              Edit
-            </Button>
-            <Button variant="danger">
-              Disable
-            </Button>
-          </td>
-        </tr>
+            <Form.Group controlId='name'>
+              <Form.Label>Second Name</Form.Label>
+              <Form.Control
+                type='name'
+                placeholder='Enter Second name'
+                value={secondName}
+                onChange={(e) => setsecondName(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
 
-        <tr>
-          <td>2</td>
-          <td>ngecu16@gmail.com</td>
-          <td>Lukas</td>
-          <td>
-          <Button>
-              View
-            </Button>
+            <Form.Group controlId='email'>
+              <Form.Label>Email Address</Form.Label>
+              <Form.Control
+                type='email'
+                placeholder='Enter email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
 
-            <Button variant="warning">
-              Edit
-            </Button>
-            <Button variant="danger">
-              Disable
-            </Button>
-          </td>
-        </tr>
+            <Form.Group controlId='password'>
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type='password'
+                placeholder='Enter password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
 
+            <Form.Group controlId='confirmPassword'>
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                type='password'
+                placeholder='Confirm password'
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
+
+            <Button type='submit' variant='primary'>
+              Update
+            </Button>
+          </Form>
+        )}
+      </Col>
+    </Row>
       
-
-       
-
-        
-      
-      </tbody>
-    </Table>
-    
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group as={Col} controlId="formAccountNumber">
-          <Form.Label>Account Number</Form.Label>
-          <Form.Control
-            type="text"
-            value={accountNumber}
-            onChange={handleAccountNumberChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formBroker">
-          <Form.Label>Broker</Form.Label>
-          <Form.Control as="select" value={selectedBroker} onChange={handleBrokerChange}>
-            <option value="">Select a broker</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formServer">
-          <Form.Label>Server</Form.Label>
-          <Form.Control as="select" value={selectedServer} onChange={handleServerChange} disabled={!selectedBroker}>
-            <option value="">Select a server</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formLotSize">
-          <Form.Label>Lot Size</Form.Label>
-          <Form.Control
-            type="text"
-            value={lotSize}
-            onChange={handleLotSizeChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formTakeProfit">
-          <Form.Label>Take Profit</Form.Label>
-          <Form.Control
-            type="text"
-            value={takeProfit}
-            onChange={handleTakeProfitChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formStopLoss">
-          <Form.Label>Stop Loss</Form.Label>
-          <Form.Control
-            type="text"
-            value={stopLoss}
-            onChange={handleStopLossChange}
-          />
-        </Form.Group>
-
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!accountNumber || !password || !selectedBroker || !selectedServer || !lotSize || !takeProfit || !stopLoss}
-        >
-          Submit
-        </Button>
-      </Form> */}
-    
   </div>
 
 
@@ -418,88 +378,18 @@ console.log("projects is ",projects);
           
           </div>
         
-        <div className="col-lg-5">
-          <div className="card">
-            <div className="card-header pb-0 p-3">
-              <h6 className="mb-0">My Projects</h6>
-            </div>
-            <div className="card-body p-3">
-              <ul className="list-group">
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
-
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
-
-
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
-
-
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
-               
-              </ul>
-            </div>
-          </div>
-        </div>
+         
+     
         </div>
       </div>
    
    
   </main>
   
+
             </>
   
     )
   }
 
-  export default DashboardIndex
+  export default ProfileScreen

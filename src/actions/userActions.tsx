@@ -124,14 +124,21 @@ export const register = (userInfoDetails:{firstName:string, secondName:string, e
   }
 }
 
-export const getUserDetails = (email:string) => async (dispatch: Dispatch<AnyAction>) => {
+export const getUserDetails = (token:string,email:string) => async (dispatch: Dispatch<AnyAction>) => {
   try {
     dispatch({
       type: USER_DETAILS_REQUEST,
     })
 
-    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/users/${email}`)
 
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
+    const { data } = await axios.get(`http://localhost:5000/api/users/${email}`,config)
+    console.log(data)
     dispatch({
       type: USER_DETAILS_SUCCESS,
       payload: data,

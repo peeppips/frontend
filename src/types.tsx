@@ -2,9 +2,17 @@ export interface UserLoginState {
   loading: boolean;
   error: string | null;
   userInfo: UserInfo | null;
-
   
 }
+
+export interface userDetailsState {
+  loading: boolean;
+  error: string | null;
+  user: any | null;
+  success:boolean
+}
+
+
 
 export interface projectListByUserState {
   loading: boolean;
@@ -24,5 +32,6 @@ export interface UserInfo {
   id: number;
   name: string;
   projects:any;
+  token: string
   // Add more properties as needed
 }
