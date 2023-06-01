@@ -11,6 +11,11 @@ export interface projectListByUserState {
   error: string | null;
   projects: any[] | null   ;
 }
+export interface brokerListByUserState {
+  loading: boolean;
+  error: string | null;
+  brokers: any[] | null   ;
+}
 
 export interface UserInfo {
   user: any;
