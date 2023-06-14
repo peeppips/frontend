@@ -48,7 +48,7 @@ import { getReferalByUser } from "../../actions/referralActions";
       (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
       (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
       (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
-
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getReferalByUser(userInfo?.uid));
        
         
       }
