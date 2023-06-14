@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Col, Button } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { RootState } from '../store';
+import { UserLoginState } from '../types';
 
 
 interface HostBotDetails {
@@ -48,6 +51,18 @@ const BrokerQuestionForm = () => {
     localStorage.setItem('hostBotDetails', JSON.stringify(hostBotDetails));
     navigate('/host-bot/4');
   };
+  const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
+ 
+  // Destructure the properties with their types
+const { userInfo } = userLogin;
+
+  useEffect(() => {
+    if (!userInfo) {
+      navigate('/')
+    } else {
+      
+    }
+  }, [userInfo]);
 
   const getServerOptions = () => {
     if (broker === 'Broker1') {

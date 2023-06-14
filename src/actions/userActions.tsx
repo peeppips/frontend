@@ -44,7 +44,7 @@ export const login = (loginB: { email: string, password: string }) => async (dis
     }
 
     const { data } = await axios.post(
-      'http://localhost:5000/api/users/login',
+      'https://peeppipsbackend.onrender.com/api/users/login',
       loginB,
       config
     )
@@ -137,7 +137,7 @@ export const getUserDetails = (token:string,email:string) => async (dispatch: Di
       },
     }
 
-    const { data } = await axios.get(`http://localhost:5000/api/users/${email}`,config)
+    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/users/${email}`,config)
     console.log(data)
     dispatch({
       type: USER_DETAILS_SUCCESS,

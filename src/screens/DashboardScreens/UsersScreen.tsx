@@ -1,6 +1,6 @@
 import {   useEffect } from "react";
 // import { Button, Col, Form } from "react-bootstrap";
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { ThunkDispatch } from "redux-thunk";
@@ -11,96 +11,22 @@ import { Button, Table } from "react-bootstrap";
 
  const UsersScreen = () => {
 
-//     const brokers = ['Broker A', 'Broker B', 'Broker C']; // Sample list of brokers
-// const serversByBroker = {
-//   'Broker A': ['Server A1', 'Server A2', 'Server A3'],
-//   'Broker B': ['Server B1', 'Server B2', 'Server B3'],
-//   'Broker C': ['Server C1', 'Server C2', 'Server C3'],
-// }; // Sample mapping of servers by broker
-
-// const [accountNumber, setAccountNumber] = useState('');
-// const [password, setPassword] = useState('');
-// const [selectedBroker, setSelectedBroker] = useState('');
-// const [selectedServer, setSelectedServer] = useState('');
-// const [lotSize, setLotSize] = useState('');
-// const [takeProfit, setTakeProfit] = useState('');
-// const [stopLoss, setStopLoss] = useState('');
-
-// // const handleAccountNumberChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setAccountNumber(e.target.value);
-// //   };
-
-// //   const handlePasswordChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setPassword(e.target.value);
-// //   };
-
-// //   const handleBrokerChange = (e: { target: { value: any; }; }) => {
-// //     const broker = e.target.value;
-// //     setSelectedBroker(broker);
-// //     setSelectedServer('');
-// //   };
-
-// //   const handleServerChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setSelectedServer(e.target.value);
-// //   };
-
-// //   const handleLotSizeChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setLotSize(e.target.value);
-// //   };
-
-// //   const handleTakeProfitChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setTakeProfit(e.target.value);
-// //   };
-
-// //   const handleStopLossChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setStopLoss(e.target.value);
-// //   };
-
-// //   const handleSubmit = (e: { preventDefault: () => void; }) => {
-// //     e.preventDefault();
-
-// //     // Perform any necessary actions with the form data
-// //     console.log('Submitted Data:', {
-// //       accountNumber,
-// //       password,
-// //       selectedBroker,
-// //       selectedServer,
-// //       lotSize,
-// //       takeProfit,
-// //       stopLoss,
-// //     });
-
-//     // Reset the form fields
-//     setAccountNumber('');
-//     setPassword('');
-//     setSelectedBroker('');
-//     setSelectedServer('');
-//     setLotSize('');
-//     setTakeProfit('');
-//     setStopLoss('');
-//   };
-
-  // const serverOptions = serversByBroker[selectedBroker] || [];
   const dispatch = useDispatch()
 
   const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
 
   const { userInfo } = userLogin
 
-
-
-
-
-
   const projectListByUser = useSelector((state: RootState): projectListByUserState => state.projectListByUser as projectListByUserState);  
 
   const { projects } = projectListByUser
 
+  const navigate =useNavigate()
   useEffect(() => {
     if (!userInfo) {
-      // Handle the case when userInfo is not available
+      navigate('/')
     } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.user.email));
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.email));
     }
   }, [dispatch, userInfo]);
   

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
@@ -8,22 +8,23 @@ import { login } from '../actions/userActions';
 import { app, signInWithGoogle } from '../firebase';
 import { RootState } from '../store';
 import { UserLoginState } from '../types';
-import {  Container } from '@mui/material';
+// import {  Container } from '@mui/material';
 import { getAuth } from "firebase/auth";
-import styles from '../styles/landing.module.css';
+// import styles from '../styles/landing.module.css';
 
 
 import { ThunkDispatch } from 'redux-thunk';
 import { AnyAction } from 'redux';
-import { Collapse, Row } from 'antd';
+// import { Collapse, Row } from 'antd';
 import DashboardIndex from './DashboardScreens/HomeScreen';
 import { USER_LOGIN_FAIL } from '../constants/userConstants';
+import { Row } from 'react-bootstrap';
 
 
 const auth = getAuth(app);
 console.log(auth)
 
-const {Panel} = Collapse
+// const {Panel} = Collapse
 
 const LoginScreen: React.FC = () => {
 
@@ -35,15 +36,18 @@ const LoginScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
- 
+//  const navigate = useNavigate()
   // Destructure the properties with their types
 const { loading, error, userInfo } = userLogin;
-  useEffect(() => {
-    if (userInfo) {
-      console.log(userInfo)
+  // useEffect(() => {
+  //   if (userInfo) {
+  //     console.log(userInfo)
     
-    }
-  }, [userInfo]);
+  //   }
+  //   else{
+  //   navigate('/')
+  //   }
+  // }, [userInfo]);
 
   // const openNotification = () => {
   //   api.open({
@@ -87,73 +91,70 @@ const { loading, error, userInfo } = userLogin;
 <>
 {/* {contextHolder} */}
 {userInfo ? (
-
-  <>
-  {userInfo?.projects ? <DashboardIndex/>: <Homescreen/>}
-  
-  </>
+  <DashboardIndex/>
 ):
 (
    <>
 
-     <main className="main-content  mt-0">
+
     <section>
       <div className="page-header min-vh-100">
-        <div className="container">
-          <div className="row">
-            <div className="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
+       
+          <div className="row w-100 vh-100">
+          <div className="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto text-align-center justify-content-center">
               <div className="card card-plain">
-                <div className="card-header pb-0 text-start">
-                {error && <Message variant='danger'>{error}</Message>}
-      {loading && <Loader />}
-                  <h4 className="font-weight-bolder">Sign In</h4>
-                  <p className="mb-0">Enter your email and password to sign in</p>
-                </div>
+              <div className="card-header pb-0 text-start text-center">
+  {error && <Message variant='danger'>{error}</Message>}
+  {loading && <Loader />}
+  <h4 className="font-weight-bolder">Login In</h4>
+  <p className="mb-0">or <Link to="/register">Create an Account</Link></p>
+</div>
+
                 <div className="card-body">
                   <form onSubmit={submitHandler}>
-                    <div className="mb-3">
-                      <input type="email" 
-                      className="form-control form-control-lg" placeholder="Email" aria-label="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <input type="password" className="form-control form-control-lg"
-                      placeholder="Password" aria-label="Password"
-                      value={password}
-            onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <div className="form-check form-switch">
-                      <input className="form-check-input" type="checkbox" id="rememberMe"/>
-                      <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
-                    </div>
+                  <div className="mb-3">
+    <label htmlFor="email" className="form-label">Email</label>
+    <input
+      type="email"
+      id="email"
+      className="form-control form-control-lg"
+      placeholder="johndee@gmail.com"
+      aria-label="Email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+    />
+  </div>
+  <div className="mb-3">
+    <label htmlFor="password" className="form-label">Password</label>
+    <input
+      type="password"
+      id="password"
+      className="form-control form-control-lg"
+      placeholder="*******"
+      aria-label="Password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+    />
+  </div>
+                  
                     <div className="text-center">
                       <button  type='submit' className="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in</button>
                     </div>
                   </form>
-                </div>
-                <div className="card-footer text-center pt-0 px-lg-2 px-1">
-                  <p className="mb-4 text-sm mx-auto">
-                    Don't have an account?
-
-                    <Link to='/register' className="text-primary text-gradient font-weight-bold">
-            Register
-          </Link>
-                  </p>
-                </div>
-                <Row>
+                  <Row>
                 <div className="col-12 px-1">
-                <div className="text-center">
+                <div className="text-center mt-4">
                   <b>OR</b>
                       <button  onClick={loginwithg} className="btn btn-block btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in with google</button>
                     </div>
               </div>
                 </Row>
+                </div>
+                
+               
               </div>
             </div>
-            <div className="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
+            <div className="col-8 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
               <div className="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden" style={{backgroundImage: `url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg')`,backgroundSize: 'cover'}} >
                 <span className="mask bg-gradient-primary opacity-6"></span>
                 <h4 className="mt-5 text-white font-weight-bolder position-relative">"Attention is the new currency"</h4>
@@ -161,10 +162,10 @@ const { loading, error, userInfo } = userLogin;
               </div>
             </div>
           </div>
-        </div>
+      
       </div>
     </section>
-  </main>
+ 
    
   
       {/* <h1>Sign In</h1>
@@ -214,104 +215,104 @@ const { loading, error, userInfo } = userLogin;
 export default LoginScreen;
 
 
-const Homescreen = () => {
-  // const userLogin = useSelector((state: RootState) => state.userLogin);
+// const Homescreen = () => {
+//   // const userLogin = useSelector((state: RootState) => state.userLogin);
 
-  // const { userInfo } = userLogin;
-  type ExpandIconPosition = 'start' | 'end';
-  const [expandIconPosition,] = useState<ExpandIconPosition>('end');
+//   // const { userInfo } = userLogin;
+//   type ExpandIconPosition = 'start' | 'end';
+//   const [expandIconPosition,] = useState<ExpandIconPosition>('end');
   
-  return(
-    <main style={{marginTop:"5%"}}>
+//   return(
+//     <main style={{marginTop:"5%"}}>
 
-    <Container className={styles.container}>
-{/* 
-    <Modal title="Bot Details" open={isModalOpen}  onCancel={handleCancel}>
-        <BotForm/>
-      </Modal>
+//     <Container className={styles.container}>
+// {/* 
+//     <Modal title="Bot Details" open={isModalOpen}  onCancel={handleCancel}>
+//         <BotForm/>
+//       </Modal>
        
-        <Grid container spacing={4}>
+//         <Grid container spacing={4}>
           
         
-        {userInfo && <> {userInfo['isAdmin'] ? <> 
-          <Grid item sm={12} xs={12} md={6}>
-                <Link to={'/research'}>
-                <Cardcomponent image={`https://leverageedublog.s3.ap-south-1.amazonaws.com/blog/wp-content/uploads/2020/03/28214113/Types-of-Research-Design.jpg`} title={`Research`} description={`/research`}/>
-                </Link>
-            </Grid>
-            <Grid item sm={12} xs={12} md={6}>
-            <Link to={'/business'}>
+//         {userInfo && <> {userInfo['isAdmin'] ? <> 
+//           <Grid item sm={12} xs={12} md={6}>
+//                 <Link to={'/research'}>
+//                 <Cardcomponent image={`https://leverageedublog.s3.ap-south-1.amazonaws.com/blog/wp-content/uploads/2020/03/28214113/Types-of-Research-Design.jpg`} title={`Research`} description={`/research`}/>
+//                 </Link>
+//             </Grid>
+//             <Grid item sm={12} xs={12} md={6}>
+//             <Link to={'/business'}>
                 
-                <Cardcomponent image={`https://www.xero.com/content/dam/xero/pilot-images/guides/how-to-start-an-online-business-guide/htsob-guide-hero.1648510683285.png`} title={`Business`} description={`/business`}/>
+//                 <Cardcomponent image={`https://www.xero.com/content/dam/xero/pilot-images/guides/how-to-start-an-online-business-guide/htsob-guide-hero.1648510683285.png`} title={`Business`} description={`/business`}/>
 
-                </Link>
-            </Grid>
-        </>: <></>} </>}
+//                 </Link>
+//             </Grid>
+//         </>: <></>} </>}
         
             
-            <Grid item sm={12} xs={12} md={6}>
-            <Link to={'/free-bots'}> 
-            <Cardcomponent image={`https://www.addtelegrammember.com/wp-content/webpc-passthru.php?src=https://www.addtelegrammember.com/wp-content/uploads/2020/12/Telegram-Bot-1200x600.jpg&nocache=1`} title={`Free Bots`} description={`/free-bots`}/>
+//             <Grid item sm={12} xs={12} md={6}>
+//             <Link to={'/free-bots'}> 
+//             <Cardcomponent image={`https://www.addtelegrammember.com/wp-content/webpc-passthru.php?src=https://www.addtelegrammember.com/wp-content/uploads/2020/12/Telegram-Bot-1200x600.jpg&nocache=1`} title={`Free Bots`} description={`/free-bots`}/>
 
-                </Link>
-            </Grid>
-            <Grid item sm={12} xs={12} md={6}>
+//                 </Link>
+//             </Grid>
+//             <Grid item sm={12} xs={12} md={6}>
 
-            <Link to={'/newsletter'}> 
-            <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`Subscribe To Our NewsLetter`} description={`/newsletter`}/>
+//             <Link to={'/newsletter'}> 
+//             <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`Subscribe To Our NewsLetter`} description={`/newsletter`}/>
 
-                </Link>
+//                 </Link>
 
-                </Grid>
-                <Grid item sm={12} xs={12} md={6}>
-                <Link to={'https://docs.google.com/forms/d/1BNnPyTXVw46JIhJoUNjq2wU07nYR6hRIrFV858xqweg/edit?usp=forms_home&ths=true'} target="_blank" rel="noopener noreferrer"> 
-            <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I want you to create a trading bot for me`} description={`Fill the Form`}/>
+//                 </Grid>
+//                 <Grid item sm={12} xs={12} md={6}>
+//                 <Link to={'https://docs.google.com/forms/d/1BNnPyTXVw46JIhJoUNjq2wU07nYR6hRIrFV858xqweg/edit?usp=forms_home&ths=true'} target="_blank" rel="noopener noreferrer"> 
+//             <Cardcomponent image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I want you to create a trading bot for me`} description={`Fill the Form`}/>
 
-                </Link>
-                </Grid>
+//                 </Link>
+//                 </Grid>
 
-                <Grid onClick={showModal} item sm={12} xs={12} md={6}>
+//                 <Grid onClick={showModal} item sm={12} xs={12} md={6}>
                
-            <Cardcomponent  image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I have a trading bot that I want you to host and to help me  resell (Host Bot)`} description={`Fill the Form`}/>
+//             <Cardcomponent  image={`https://kinsta.com/wp-content/uploads/2021/12/newsletter-examples.png`} title={`I have a trading bot that I want you to host and to help me  resell (Host Bot)`} description={`Fill the Form`}/>
                
-            </Grid>
+//             </Grid>
 
-        </Grid> */}
+//         </Grid> */}
 
 
- <Collapse defaultActiveKey={['1']}  expandIconPosition={expandIconPosition}>
-      <Panel header="Reseach" key="1">
-        <p>
-          Our research methodology for developing a trading bot system involves a systematic approach that integrates data collection, algorithm development, and testing. We gather relevant financial data from diverse sources and preprocess it to ensure accuracy and consistency. Advanced machine learning algorithms are then developed to analyze the data and generate trading signals. These algorithms undergo rigorous testing and validation using historical data to assess their performance and effectiveness. The research process focuses on optimizing trading strategies, implementing risk management techniques, and ensuring compliance with regulatory guidelines. Through continuous monitoring and maintenance, we strive to create a reliable and adaptive trading bot system capable of maximizing profitability while minimizing risks.
-        </p>
-      </Panel>
-      <Panel header="Business" key="2">
-        <p>Our research methodology for business analysis follows a comprehensive approach to gather relevant data from diverse sources and analyze it using quantitative and qualitative techniques. Through data collection and rigorous analysis, we derive meaningful insights that inform strategic decision-making. The results are interpreted in the context of the research objectives and used to formulate effective business strategies. Continuous monitoring and evaluation ensure that the strategies are implemented successfully and adapted to evolving market dynamics. By employing this research methodology, we provide businesses with valuable insights and recommendations to drive growth, improve competitiveness, and enhance overall performance.</p>
-      </Panel>
-      <Panel header="Free Bots" key="3">
-        <p>Free bots refer to automated software programs that perform specific tasks or functions without any cost to the user. These bots are designed to streamline and automate various processes, such as customer service, data analysis, social media management, or trading activities. The research methodology for evaluating free bots typically involves assessing their features, capabilities, user reviews, and compatibility with specific requirements. It also includes testing the bot's performance, reliability, security, and scalability to ensure its effectiveness in achieving the desired outcomes. The research aims to identify and recommend reliable free bots that offer value and efficiency to users, enabling them to optimize their operations and save time and resources.</p>
-      </Panel>
-            <Panel header="Subscribe to Our Newsletter" key="4">
-        <p>Subscribing to our newsletter offers a valuable opportunity to stay informed and up-to-date with the latest developments in our industry. By joining our newsletter community, you gain access to exclusive content, industry insights, expert analysis, and upcoming events or promotions. Our carefully curated newsletter delivers relevant information directly to your inbox, saving you time and effort in seeking out valuable resources. Subscribers also receive early access to new products or services, special discounts, and personalized recommendations. Don't miss out on the chance to enhance your knowledge, stay connected, and maximize your opportunities by subscribing to our newsletter today.</p>
-      </Panel>
-            <Panel header="I want you to create a trading bot for me" key="5">
-        <p>
-          If you're seeking a customized trading bot tailored to your specific needs, we can provide you with a comprehensive solution. Our team of experts specializes in developing sophisticated trading bots that leverage cutting-edge technologies and advanced algorithms. By understanding your trading goals, risk appetite, and desired strategies, we can create a bot that automates your trading activities, monitors market conditions, executes trades, and optimizes your portfolio. With a focus on performance, reliability, and risk management, our trading bot will aim to maximize your potential returns while minimizing risks. Let us help you streamline your trading process and unlock new opportunities with a personalized trading bot designed just for you.
-        </p>
-      </Panel>
+//  <Collapse defaultActiveKey={['1']}  expandIconPosition={expandIconPosition}>
+//       <Panel header="Reseach" key="1">
+//         <p>
+//           Our research methodology for developing a trading bot system involves a systematic approach that integrates data collection, algorithm development, and testing. We gather relevant financial data from diverse sources and preprocess it to ensure accuracy and consistency. Advanced machine learning algorithms are then developed to analyze the data and generate trading signals. These algorithms undergo rigorous testing and validation using historical data to assess their performance and effectiveness. The research process focuses on optimizing trading strategies, implementing risk management techniques, and ensuring compliance with regulatory guidelines. Through continuous monitoring and maintenance, we strive to create a reliable and adaptive trading bot system capable of maximizing profitability while minimizing risks.
+//         </p>
+//       </Panel>
+//       <Panel header="Business" key="2">
+//         <p>Our research methodology for business analysis follows a comprehensive approach to gather relevant data from diverse sources and analyze it using quantitative and qualitative techniques. Through data collection and rigorous analysis, we derive meaningful insights that inform strategic decision-making. The results are interpreted in the context of the research objectives and used to formulate effective business strategies. Continuous monitoring and evaluation ensure that the strategies are implemented successfully and adapted to evolving market dynamics. By employing this research methodology, we provide businesses with valuable insights and recommendations to drive growth, improve competitiveness, and enhance overall performance.</p>
+//       </Panel>
+//       <Panel header="Free Bots" key="3">
+//         <p>Free bots refer to automated software programs that perform specific tasks or functions without any cost to the user. These bots are designed to streamline and automate various processes, such as customer service, data analysis, social media management, or trading activities. The research methodology for evaluating free bots typically involves assessing their features, capabilities, user reviews, and compatibility with specific requirements. It also includes testing the bot's performance, reliability, security, and scalability to ensure its effectiveness in achieving the desired outcomes. The research aims to identify and recommend reliable free bots that offer value and efficiency to users, enabling them to optimize their operations and save time and resources.</p>
+//       </Panel>
+//             <Panel header="Subscribe to Our Newsletter" key="4">
+//         <p>Subscribing to our newsletter offers a valuable opportunity to stay informed and up-to-date with the latest developments in our industry. By joining our newsletter community, you gain access to exclusive content, industry insights, expert analysis, and upcoming events or promotions. Our carefully curated newsletter delivers relevant information directly to your inbox, saving you time and effort in seeking out valuable resources. Subscribers also receive early access to new products or services, special discounts, and personalized recommendations. Don't miss out on the chance to enhance your knowledge, stay connected, and maximize your opportunities by subscribing to our newsletter today.</p>
+//       </Panel>
+//             <Panel header="I want you to create a trading bot for me" key="5">
+//         <p>
+//           If you're seeking a customized trading bot tailored to your specific needs, we can provide you with a comprehensive solution. Our team of experts specializes in developing sophisticated trading bots that leverage cutting-edge technologies and advanced algorithms. By understanding your trading goals, risk appetite, and desired strategies, we can create a bot that automates your trading activities, monitors market conditions, executes trades, and optimizes your portfolio. With a focus on performance, reliability, and risk management, our trading bot will aim to maximize your potential returns while minimizing risks. Let us help you streamline your trading process and unlock new opportunities with a personalized trading bot designed just for you.
+//         </p>
+//       </Panel>
 
-                  <Panel header="I have a trading bot that I want you to host and to help me  resell (Host Bot)" key="6">
-        <p>If you have a trading bot that you want to host and resell, we can provide you with the necessary infrastructure and support to make it a success. Our hosting services offer a secure and reliable environment for your bot, ensuring its continuous operation and optimal performance. Additionally, we can assist you in marketing and reselling your bot by leveraging our network and expertise in the trading industry. With our partnership, you can expand your reach, gain access to a wider customer base, and enhance your bot's visibility in the market. Let us help you unlock the potential of your trading bot by providing hosting services and strategic guidance for successful reselling.</p>
-                <Link className="btn btn-primary" to="/host-bots/1">Get Started</Link>
+//                   <Panel header="I have a trading bot that I want you to host and to help me  resell (Host Bot)" key="6">
+//         <p>If you have a trading bot that you want to host and resell, we can provide you with the necessary infrastructure and support to make it a success. Our hosting services offer a secure and reliable environment for your bot, ensuring its continuous operation and optimal performance. Additionally, we can assist you in marketing and reselling your bot by leveraging our network and expertise in the trading industry. With our partnership, you can expand your reach, gain access to a wider customer base, and enhance your bot's visibility in the market. Let us help you unlock the potential of your trading bot by providing hosting services and strategic guidance for successful reselling.</p>
+//                 <Link className="btn btn-primary" to="/host-bots/1">Get Started</Link>
 
-      </Panel>
+//       </Panel>
 
       
-    </Collapse>
+//     </Collapse>
 
 
-    </Container>
-</main>
+//     </Container>
+// </main>
 
-  )
-}
+//   )
+// }

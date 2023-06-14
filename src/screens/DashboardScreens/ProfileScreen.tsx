@@ -11,6 +11,7 @@ import { RootState } from '../../store'
 import { AnyAction } from 'redux'
 import { ThunkDispatch } from 'redux-thunk'
 import { useEffect, useState } from 'react'
+import TopBarComponent from './components/TopBarComponent'
  
 const ProfileScreen = () => {
   const [firstName, setfirstName] = useState('')
@@ -43,7 +44,7 @@ const ProfileScreen = () => {
       if (!user || !user.firstName || success) {
         (dispatch as ThunkDispatch<any, any, AnyAction>)({ type: USER_UPDATE_PROFILE_RESET });
 
-        (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo?.token,userInfo?.user?.email));
+        (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo?.token,userInfo?.email));
 
       } else {
         setfirstName(user.firstName)
@@ -187,107 +188,14 @@ const ProfileScreen = () => {
     </nav>
   
     <div className="container-fluid py-4">
-      <div className="row">
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Projects</p>
-                    <h5 className="font-weight-bolder">
-                   
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+55%</span>
-                      since yesterday
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                    <i className="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Referrals</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+3%</span>
-                      since last week
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                    <i className="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Input Variables</p>
-                    <h5 className="font-weight-bolder">
-                      0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-danger text-sm font-weight-bolder">-2%</span>
-                      since last quarter
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                    <i className="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">Accounts Under Me</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+5%</span> than last month
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                    <i className="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+    {!loading ? (
+           <TopBarComponent />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ):(<></>)}
+
+   
   
       <div className="row mt-4">
         <div className="col-lg-12 mb-lg-0 mb-4">

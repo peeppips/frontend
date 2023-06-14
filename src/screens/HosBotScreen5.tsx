@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Col, Button, Container } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AnyAction } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { createProject } from '../actions/projectActions';
+// import { AnyAction } from 'redux';
+// import { ThunkDispatch } from 'redux-thunk';
+// import { createProject } from '../actions/projectActions';
 import {  notification } from 'antd';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
+import { RootState } from '../store';
+import { UserLoginState } from '../types';
 
 const Context = React.createContext({ name: 'Default' });
 
@@ -26,7 +28,7 @@ const DeployBotForm = () => {
     });
   };
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [accountNumber, setAccountNumber] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -85,7 +87,7 @@ const DeployBotForm = () => {
       
     
       try {
-        await (dispatch as ThunkDispatch<any, any, AnyAction>)(createProject(hostBotDetails));;
+        // await (dispatch as ThunkDispatch<any, any, AnyAction>)(createProject(hostBotDetails));;
         // Navigation upon successful project creation
         openNotification('topLeft')
         navigate('/'); // Replace with your desired navigation path
@@ -101,6 +103,19 @@ const DeployBotForm = () => {
     
     // navigate('/host-bot/submit');
   };
+
+  const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
+ 
+  // Destructure the properties with their types
+const { userInfo } = userLogin;
+
+  useEffect(() => {
+    if (!userInfo) {
+      navigate('/')
+    } else {
+      
+    }
+  }, [userInfo]);
 
   return (
     

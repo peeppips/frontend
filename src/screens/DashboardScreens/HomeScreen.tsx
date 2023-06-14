@@ -1,16 +1,26 @@
-import {   useEffect } from "react";
+import {   useEffect, useState } from "react";
 // import { Button, Col, Form } from "react-bootstrap";
 import { getUserDetails } from "../../actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
-import { UserLoginState, projectListByUserState } from "../../types";
+import { GetAccountsByUserState, GetReferralsByUserState, UserLoginState, brokerListByUserState, projectListByUserState } from "../../types";
 import { getProjectsByUser } from "../../actions/projectActions";
-import { Button, Table } from "react-bootstrap";
 import DashboardSidebar from "./components/Sidebar";
+import TopBarComponent from "./components/TopBarComponent";
+import ProjectsPieComponent from "./components/ProjectsPieComponent";
+import CustomerBarChartComponent from "./components/CustomerBarChartComponent";
+import { createAccount, getAccountsByUser } from "../../actions/accountActions";
+import { Button, Col, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { getAllBrokers } from "../../actions/brokerActions";
+import Loader from "../../components/Loader";
+import Message from "../../components/Message";
+import { getReferalByUser } from "../../actions/referralActions";
 
  const DashboardIndex = () => {
+  const [broker_selected, setBroker] = useState('')
 
   
   const dispatch = useDispatch()
@@ -24,13 +34,21 @@ import DashboardSidebar from "./components/Sidebar";
   const { projects } = projectListByUser
 
 
+  const accountByUser = useSelector((state: RootState): GetAccountsByUserState => state.accountByUser as GetAccountsByUserState);  
+
+  const { loading, error,accounts } = accountByUser
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (!userInfo) {
-      
+      navigate('/')
     } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo.token,userInfo.user.email));
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.user.email));
-      
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo.token,userInfo.email));
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
+
        
         
       }
@@ -45,13 +63,118 @@ import DashboardSidebar from "./components/Sidebar";
 console.log("projects is ",projects);
 
     }
-  }, [projects]);
+
+    if (accounts == undefined) {
+      console.log("accounts is undefined:");
+    }
+    else{
+console.log("accounts are ",accounts);
+
+    }
+    
+  }, [projects,accounts]);
   
 
-    return(
+  const [account, setAccount] = useState({
+    user: userInfo?.uid,
+    login: '',
+    password: '',
+    investorPassword: '',
+    lotSize: '',
+    riskManagementPercentage: '',
+    takeProfit: '',
+    stopLoss: '',
+    broker: '',
+    server: ''
+  });
+
+  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    // Perform submission logic or dispatch an action
+    console.log(account);
+    try {
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createAccount(account));
+      
+      console.log('Account created successfully');
+    
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
+
+    } catch (error) {
+      console.log('Failed to create account:', error);
+    }
+    
+
+    if(userInfo){
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getUserDetails(userInfo.token,userInfo.email));
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.email));
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getReferalByUser(userInfo?.uid));
+    }
+
+
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAccount((prevAccount) => ({
+      ...prevAccount,
+      [name]: value,
+    }));
+  };
+
+
+  const allBrokers = useSelector((state: RootState): brokerListByUserState => state.allBrokers as brokerListByUserState);  
+
+  const { brokers } = allBrokers
+
+
+  // const serverByBroker = useSelector((state: RootState): serverListByBrokerState => state.serverByBroker as serverListByBrokerState);  
+
+  // const { servers } = serverByBroker
+
+  
+
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+  
+    setAccount((prevAccount) => ({
+      ...prevAccount,
+      [name]: value,
+    }));
+    console.log(name,value)
+    if (name == "broker") {
+      setBroker(value);
+      // (dispatch as ThunkDispatch<any, any, AnyAction>)(getServersByBroker(value));
+    }
+ 
+
+  };
+  const selectedBrokerObj = brokers?.find(broker => broker.name === broker_selected);
+  
+
+  const isSubmitDisabled = Object.values(account).some((value) => value === '');
+  
+  const referralListByUser = useSelector((state: RootState): GetReferralsByUserState => state.referralListByUser as GetReferralsByUserState);  
+
+  const { referrals } = referralListByUser
+  
+  const projectsData = projects !== null ? projects : [];
+  
+  return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
-        <DashboardSidebar/>
+        
+              {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+    <DashboardSidebar />)}
+        
+        
+       
   <main className="main-content position-relative border-radius-lg ">
  
     <nav className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
@@ -170,328 +293,197 @@ console.log("projects is ",projects);
     </nav>
   
     <div className="container-fluid py-4">
-      <div className="row">
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Projects</p>
-                    <h5 className="font-weight-bolder">
-                    {projects?.length}
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+55%</span>
-                      since yesterday
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                    <i className="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
+    {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+    <TopBarComponent />)}
+  
+  <>
+  {accounts && accounts.length > 0 ? (
+      <div className="row mt-4">
+      <div className="col-lg-6 mb-lg-0 mb-4">
+        <div className="card ">
+          <div className="card-header pb-0 p-3">
+            <div className="d-flex justify-content-between">
+              <h6 className="mb-2">My Projects</h6>
             </div>
           </div>
-        </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Referrals</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+3%</span>
-                      since last week
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                    <i className="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+          <div className="card-body">
+          {projects && projects.length == 0 ? <>No Projects For This User</>:<ProjectsPieComponent projects={projectsData} /> }
+
+ 
+  
+   
+  
+</div>
+
+
           </div>
+        
         </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Input Variables</p>
-                    <h5 className="font-weight-bolder">
-                      0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-danger text-sm font-weight-bolder">-2%</span>
-                      since last quarter
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                    <i className="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+      
+      <div className="col-lg-6">
+        <div className="card">
+          <div className="card-header pb-0 p-3">
+            <h6 className="mb-0">My Customers</h6>
           </div>
-        </div>
-        <div className="col-xl-3 col-sm-6">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">Accounts Under Me</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+5%</span> than last month
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                    <i className="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="card-body p-3">
+            {referrals && referrals.length == 0 ? <>No Customers For This User</>:<CustomerBarChartComponent referrals={referrals} /> }
+          
           </div>
         </div>
       </div>
-  
-      <div className="row mt-4">
-        <div className="col-lg-7 mb-lg-0 mb-4">
-          <div className="card ">
-            <div className="card-header pb-0 p-3">
-              <div className="d-flex justify-content-between">
-                <h6 className="mb-2">My Referrals</h6>
-              </div>
-            </div>
-
-            <div className="card-body">
-          
-            <Table striped bordered hover variant="dark">
-      <thead>
-        <tr>
-          <th>#</th>
-          {/* <th>First Name</th>
-          <th>Second Name</th> */}
-          <th>Email</th>
-          <th>Project</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>devngecu@gmail.com</td>
-          <td>Diamond</td>
-          <td>
-          <Button>
-              View
-            </Button>
-
-            <Button variant="warning">
-              Edit
-            </Button>
-            <Button variant="danger">
-              Disable
-            </Button>
-          </td>
-        </tr>
-
-        <tr>
-          <td>2</td>
-          <td>ngecu16@gmail.com</td>
-          <td>Lukas</td>
-          <td>
-          <Button>
-              View
-            </Button>
-
-            <Button variant="warning">
-              Edit
-            </Button>
-            <Button variant="danger">
-              Disable
-            </Button>
-          </td>
-        </tr>
-
+      </div>
+) : (
+<>
+{loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+          <div className="row mt-4">
+          <Col md={12}>
+          <Message variant='danger'>You Do Not Have Any Accounts Under You.Please Fill in the form below</Message>
+        <Form onSubmit={handleSubmit}>
       
-
-       
-
-        
-      
-      </tbody>
-    </Table>
-    
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group as={Col} controlId="formAccountNumber">
-          <Form.Label>Account Number</Form.Label>
+        <Form.Group controlId="login">
+          <Form.Label>Login</Form.Label>
           <Form.Control
-            type="text"
-            value={accountNumber}
-            onChange={handleAccountNumberChange}
+            type="number"
+            name="login"
+            required={true}
+            value={account.login}
+            onChange={handleChange}
           />
         </Form.Group>
-
-        <Form.Group as={Col} controlId="formPassword">
+      
+        <Form.Group controlId="password">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
-            value={password}
-            onChange={handlePasswordChange}
+            name="password"
+            required={true}
+            value={account.password}
+            onChange={handleChange}
           />
         </Form.Group>
-
-        <Form.Group as={Col} controlId="formBroker">
-          <Form.Label>Broker</Form.Label>
-          <Form.Control as="select" value={selectedBroker} onChange={handleBrokerChange}>
-            <option value="">Select a broker</option>
-           
-          </Form.Control>
+      
+        <Form.Group controlId="investorPassword">
+          <Form.Label>Investor Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="investorPassword"
+            required={true}
+            value={account.investorPassword}
+            onChange={handleChange}
+          />
         </Form.Group>
-
-        <Form.Group as={Col} controlId="formServer">
-          <Form.Label>Server</Form.Label>
-          <Form.Control as="select" value={selectedServer} onChange={handleServerChange} disabled={!selectedBroker}>
-            <option value="">Select a server</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formLotSize">
+      
+        <Form.Group controlId="lotSize">
           <Form.Label>Lot Size</Form.Label>
           <Form.Control
-            type="text"
-            value={lotSize}
-            onChange={handleLotSizeChange}
+            type="number"
+            name="lotSize"
+            required={true}
+            value={account.lotSize}
+            onChange={handleChange}
           />
         </Form.Group>
-
-        <Form.Group as={Col} controlId="formTakeProfit">
+      
+        <Form.Group controlId="riskManagementPercentage">
+          <Form.Label>Risk Management Percentage</Form.Label>
+          <Form.Control
+            type="number"
+            name="riskManagementPercentage"
+            required={true}
+            value={account.riskManagementPercentage}
+            onChange={handleChange}
+          />
+        </Form.Group>
+      
+        <Form.Group controlId="takeProfit">
           <Form.Label>Take Profit</Form.Label>
           <Form.Control
-            type="text"
-            value={takeProfit}
-            onChange={handleTakeProfitChange}
+            type="number"
+            name="takeProfit"
+            required={true}
+            value={account.takeProfit}
+            onChange={handleChange}
           />
         </Form.Group>
-
-        <Form.Group as={Col} controlId="formStopLoss">
+      
+        <Form.Group controlId="stopLoss">
           <Form.Label>Stop Loss</Form.Label>
           <Form.Control
-            type="text"
-            value={stopLoss}
-            onChange={handleStopLossChange}
+            type="number"
+            name="stopLoss"
+            required={true}
+            value={account.stopLoss}
+            onChange={handleChange}
           />
         </Form.Group>
-
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!accountNumber || !password || !selectedBroker || !selectedServer || !lotSize || !takeProfit || !stopLoss}
-        >
-          Submit
-        </Button>
-      </Form> */}
-    
-  </div>
-
-
-            </div>
-          
-          </div>
+      
+        <Form.Group controlId="stopLoss">
+          <Form.Label>Broker</Form.Label>
+          <select 
+           name="broker"
+           value={account.broker}
+           onChange={handleSelectChange}
+          className="form-select">
+          {brokers && brokers.map((broker:any, index) => (
+              <option key={index} value={broker.name}>
+                {broker.name}
+              </option>
+            ))}
+          </select>
+        </Form.Group>
+      
+        <Form.Group controlId="stopLoss">
+          <Form.Label>Server</Form.Label>
+        <>
         
-        <div className="col-lg-5">
-          <div className="card">
-            <div className="card-header pb-0 p-3">
-              <h6 className="mb-0">My Projects</h6>
-            </div>
-            <div className="card-body p-3">
-              <ul className="list-group">
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
+        {selectedBrokerObj && (
+                <select 
+                name="server"
+                value={account.server}
+                onChange={handleSelectChange}
+                className="form-select"
+                >
+                  <>              
+                  {selectedBrokerObj.servers.map((server:any, index:number) => (
+                        <option key={index} value={server}>
+                        {server}
+                        </option>
+                    ))}
+                </>
+      
+                </select>
+              )}
+      
+        </>
+          
+        </Form.Group>
 
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
+       
+        <Button variant="primary" type="submit" className="w-100" disabled={isSubmitDisabled}>
+        Submit
+      </Button>
+     
+      </Form>
+      </Col>
+      </div>
+        )}
+</>
+  
 
 
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
+)}
+  </>
 
 
-                <li className="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div className="d-flex align-items-center">
-                    <div className="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i className="ni ni-mobile-button text-white opacity-10"></i>
-                    </div>
-                    <div className="d-flex flex-column">
-                      <h6 className="mb-1 text-dark text-sm">Diamond</h6>
-                      <span className="text-xs">250 Users, <span className="font-weight-bold">346 Accounts</span></span>
-                    </div>
-                  </div>
-                  {/* <div className="d-flex">
-                    <button className="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i className="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div> */}
-                </li>
-               
-              </ul>
-            </div>
-          </div>
-        </div>
-        </div>
       </div>
    
    
@@ -503,3 +495,15 @@ console.log("projects is ",projects);
   }
 
   export default DashboardIndex
+
+  // interface Broker {
+  //   name: string;
+  //   servers: string[];
+  // }
+  
+  // interface BrokersSelectProps {
+  //   brokers: Broker[];
+  //   selectedBroker: string;
+  //   onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  // }
+

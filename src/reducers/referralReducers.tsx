@@ -14,6 +14,9 @@ import {
   UPDATE_REFERRAL_REQUEST,
   UPDATE_REFERRAL_SUCCESS,
   UPDATE_REFERRAL_FAILURE,
+  GET_REFERRAL_BY_USER_REQUEST,
+  GET_REFERRAL_BY_USER_SUCCESS,
+  GET_REFERRAL_BY_USER_FAILURE,
 } from '../constants/referralConstants';
 
 export const createReferralReducer = (state = { referral: {} }, action: { type: any; payload: any; }) => {
@@ -49,6 +52,21 @@ export const getReferralByIdReducer = (state = { referral: {} }, action: { type:
     case GET_REFERRAL_BY_ID_SUCCESS:
       return { loading: false, referral: action.payload };
     case GET_REFERRAL_BY_ID_FAILURE:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+
+
+export const getReferralByUserReducer = (state = { referrals: [] }, action: { type: any; payload: any; }) => {
+  switch (action.type) {
+    case GET_REFERRAL_BY_USER_REQUEST:
+      return { loading: true, referrals: [] };
+    case GET_REFERRAL_BY_USER_SUCCESS:
+      return { loading: false, referrals: action.payload };
+    case GET_REFERRAL_BY_USER_FAILURE:
       return { loading: false, error: action.payload };
     default:
       return state;

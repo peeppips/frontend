@@ -22,7 +22,7 @@ export const createBroker = (brokerData: any) => async (dispatch: (arg0: { type:
     console.log(brokerData)
     dispatch({ type: CREATE_BROKER_REQUEST });
 
-    const { data } = await axios.post('http://localhost:5000/api/brokers', brokerData);
+    const { data } = await axios.post('https://peeppipsbackend.onrender.com/api/brokers', brokerData);
     
     dispatch({
       type: CREATE_BROKER_SUCCESS,
@@ -41,7 +41,7 @@ export const getAllBrokers = () => async (dispatch: (arg0: { type: string; paylo
   try {
     dispatch({ type: GET_ALL_BROKERS_REQUEST });
 
-    const { data } = await axios.get('http://localhost:5000/api/brokers');
+    const { data } = await axios.get('https://peeppipsbackend.onrender.com/api/brokers');
 
     dispatch({
       type: GET_ALL_BROKERS_SUCCESS,
@@ -59,7 +59,7 @@ export const getBrokerById = (brokerId: any) => async (dispatch: (arg0: { type: 
   try {
     dispatch({ type: GET_BROKER_BY_ID_REQUEST });
 
-    const { data } = await axios.get(`https://example.com/api/brokers/${brokerId}`);
+    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/brokers/${brokerId}`);
 
     dispatch({
       type: GET_BROKER_BY_ID_SUCCESS,
@@ -77,7 +77,7 @@ export const deleteBroker = (brokerId: any) => async (dispatch: (arg0: { type: s
   try {
     dispatch({ type: DELETE_BROKER_REQUEST });
 
-    await axios.delete(`/api/brokers/${brokerId}`);
+    await axios.delete(`https://peeppipsbackend.onrender.com/api/brokers/${brokerId}`);
 
     dispatch({
       type: DELETE_BROKER_SUCCESS,
@@ -95,7 +95,7 @@ export const updateBroker = (brokerId: any, updatedData: any) => async (dispatch
   try {
     dispatch({ type: UPDATE_BROKER_REQUEST });
 
-    const { data } = await axios.put(`https://example.com/api/brokers/${brokerId}`, updatedData);
+    const { data } = await axios.put(`https://peeppipsbackend.onrender.com/api/brokers/${brokerId}`, updatedData);
 
     dispatch({
       type: UPDATE_BROKER_SUCCESS,

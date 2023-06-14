@@ -3,38 +3,17 @@ import {   useEffect, useState } from "react";
 import { RootState } from "../../store";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
-import { UserLoginState, brokerListByUserState } from "../../types";
-import { getProjectsByUser } from "../../actions/projectActions";
-import { Badge, Button, Form, Table } from "react-bootstrap";
+import { UserLoginState, creditList } from "../../types";
+import {  Button, Form, Table } from "react-bootstrap";
 import DashboardSidebar from "./components/Sidebar";
-import { Modal, Select } from "antd";
+import { Modal} from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { createBroker, getAllBrokers } from "../../actions/brokerActions";
 import {  useNavigate } from "react-router-dom";
 import TopBarComponent from "./components/TopBarComponent";
+import { createCredit, getAllCredits } from "../../actions/creditActions";
 
- const BrokersScreen = () => {
-  const [countryOptions, setCountryOptions] = useState([]);
-
-  useEffect(() => {
-    fetchCountryOptions();
-  }, []);
-
-  const fetchCountryOptions = async () => {
-    try {
-      const response = await fetch('https://restcountries.com/v3.1/all');
-      const data = await response.json();
-
-      const options = data.map((country: { name: { common: any; }; }) => ({
-        value: country.name.common,
-        label: country.name.common,
-      }));
-
-      setCountryOptions(options);
-    } catch (error) {
-      console.error('Error fetching country options:', error);
-    }
-  };
+ const CreditsScreen = () => {
+  
 
   const dispatch = useDispatch()
 
@@ -42,9 +21,9 @@ import TopBarComponent from "./components/TopBarComponent";
 
   const { userInfo } = userLogin
 
-  const allBrokers = useSelector((state: RootState): brokerListByUserState => state.allBrokers as brokerListByUserState);  
+  const allCredits = useSelector((state: RootState): creditList => state.allCredits as creditList);  
 
-  const { brokers } = allBrokers
+  const { credits } = allCredits
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -52,8 +31,7 @@ import TopBarComponent from "./components/TopBarComponent";
       // Handle the case when userInfo is not available
       navigate('/')
     } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.email));
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllCredits());
       
       
 
@@ -64,20 +42,19 @@ import TopBarComponent from "./components/TopBarComponent";
     event.preventDefault();
     try {
      
-      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createBroker(formData));
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createCredit(formData));
       
       // Reset the form fields if needed
       setFormData({
-        name: '',
-        country: '',
-        regulations: '',
-        servers: [],
+        user: '',
+            project: '',
+            points: 0,
       });
   
       handleCancel();
       
       // Fetch the updated list of brokers
-      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllCredits());
      
     } catch (error) {
       // Handle error if necessary
@@ -86,21 +63,21 @@ import TopBarComponent from "./components/TopBarComponent";
   };
   
   useEffect(() => {
-    if (brokers == undefined) {
-      console.log("brokers is undefined:");
+    if (credits == undefined) {
+      console.log("credits is undefined:");
     }
     else{
-console.log("brokers are ",brokers);
+console.log("credits are ",credits);
 
     }
-  }, [brokers]);
+  }, [credits]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showModal = () => {
-    console.log("open model")
-    setIsModalOpen(true);
-  };
+  // const showModal = () => {
+  //   console.log("open model")
+  //   setIsModalOpen(true);
+  // };
 
 
 
@@ -109,54 +86,16 @@ console.log("brokers are ",brokers);
   };
 
   const [formData, setFormData] = useState({
-    name: '',
-    country: '',
-    regulations: '',
-    servers: [],
+    user: '',
+    project: '',
+    points: 0,
+   
   });
 
   const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
- 
-  const [servers, setServers] = useState(['']);
-
-  const handleServerChange = (index: number, event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    const updatedServers = [...servers];
-    updatedServers[index] = event.target.value;
-    setServers(updatedServers);
-    const newLocal = (prevState: any) => ({
-      ...prevState,
-      servers: updatedServers
-    });
-    setFormData(newLocal);
-  };
-  
-  
-
-  
-  const addServerField = () => {
-    setServers([...servers, '']);
-  };
-
-  const removeServerField = (index: number) => {
-    const updatedServers = [...servers];
-    updatedServers.splice(index, 1);
-    setServers(updatedServers);
-  };
-
-  const onChange = (value: string) => {
-    console.log(`selected ${value}`);
-    setFormData((prevState) => ({
-      ...prevState,
-      country: value
-    }));
-  };
-  
-  const onSearch = (value: string) => {
-    console.log('search:', value);
-  };
     return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
@@ -288,9 +227,9 @@ console.log("brokers are ",brokers);
           <div className="card ">
             <div className="card-header pb-0 p-3">
               <div className="d-flex justify-content-between">
-                <h6 className="mb-2">Brokers({brokers?.length})</h6>
+                <h6 className="mb-2">Credits({credits?.length})</h6>
 
-                <Button  onClick={showModal} variant="primary">Add</Button>
+                {/* <Button  onClick={showModal} variant="primary">Add</Button> */}
               </div>
             </div>
 
@@ -310,27 +249,20 @@ console.log("brokers are ",brokers);
         </tr>
       </thead>
       <tbody>
-      {brokers && brokers.length > 0 ? (
-  brokers.map((broker, index) => (
+      {credits && credits.length > 0 ? (
+  credits.map((credit, index) => (
     <tr key={index}>
       <td>{index}</td>
-      <td>{broker.uid}</td>
-      <td>{broker.name}</td>
-      <td>{broker.country}</td>
-      <td>{broker.regulations}</td>
-      <td>
-      {broker.servers.map((i: string, index: number) => (
-  <Badge  key={index}>
-    {i}
-  </Badge>
-))}
-
-</td>     
+      <td>{credit.uid}</td>
+      <td>{credit.user}</td>
+      <td>{credit.transactionId}</td>
+      <td>{credit.project}</td>
+       
     </tr>
   ))
 ) : (
   <tr>
-    <td colSpan={6}>No Brokers found.</td>
+    <td colSpan={6}>No Credits found.</td>
   </tr>
 )}
 
@@ -339,76 +271,7 @@ console.log("brokers are ",brokers);
       </tbody>
     </Table>
     
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group as={Col} controlId="formAccountNumber">
-          <Form.Label>Account Number</Form.Label>
-          <Form.Control
-            type="text"
-            value={accountNumber}
-            onChange={handleAccountNumberChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formBroker">
-          <Form.Label>Broker</Form.Label>
-          <Form.Control as="select" value={selectedBroker} onChange={handleBrokerChange}>
-            <option value="">Select a broker</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formServer">
-          <Form.Label>Server</Form.Label>
-          <Form.Control as="select" value={selectedServer} onChange={handleServerChange} disabled={!selectedBroker}>
-            <option value="">Select a server</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formLotSize">
-          <Form.Label>Lot Size</Form.Label>
-          <Form.Control
-            type="text"
-            value={lotSize}
-            onChange={handleLotSizeChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formTakeProfit">
-          <Form.Label>Take Profit</Form.Label>
-          <Form.Control
-            type="text"
-            value={takeProfit}
-            onChange={handleTakeProfitChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formStopLoss">
-          <Form.Label>Stop Loss</Form.Label>
-          <Form.Control
-            type="text"
-            value={stopLoss}
-            onChange={handleStopLossChange}
-          />
-        </Form.Group>
-
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!accountNumber || !password || !selectedBroker || !selectedServer || !lotSize || !takeProfit || !stopLoss}
-        >
-          Submit
-        </Button>
-      </Form> */}
+     
     
   </div>
 
@@ -425,84 +288,37 @@ console.log("brokers are ",brokers);
    
   </main>
   
-  <Modal title="Add Broker" open={isModalOpen} footer={[     <Button variant="primary" onClick={handleSubmit} type="submit">
+  <Modal title="Add Credit" open={isModalOpen} footer={[     <Button variant="primary" onClick={handleSubmit} type="submit">
         Submit
       </Button>]} onCancel={handleCancel}>
   <Form >
       <Form.Group controlId="formName">
-        <Form.Label>Name</Form.Label>
+        <Form.Label>User</Form.Label>
         <Form.Control
           type="text"
-          name="name"
+          name="user"
           required={true}
-          value={formData.name}
+          value={formData.user}
           onChange={handleInputChange}
-          placeholder="Enter name"
+          placeholder="Enter User"
         />
       </Form.Group>
 
-      <Form.Group controlId="formCountry">
-        <Form.Label>Country</Form.Label>
-        {/* <Form.Control
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleInputChange}
-          placeholder="Enter country"
-        /> */}
-  <br/>
-  {countryOptions.length > 0 ? (
-  <Select
-    style={{ width: "100%" }}
-    showSearch
-    placeholder="Select a person"
-    optionFilterProp="children"
-    onChange={onChange}
-    onSearch={onSearch}
-    options={countryOptions}
-
     
-  />
-) : (
-  <p>No options available</p>
-)}
-
-      </Form.Group>
 
       <Form.Group controlId="formRegulations">
-        <Form.Label>Regulations</Form.Label>
+        <Form.Label>Project</Form.Label>
         <Form.Control
           type="text"
           name="regulations"
           required={true}
-          value={formData.regulations}
+          value={formData.project}
           onChange={handleInputChange}
           placeholder="Enter regulations"
         />
       </Form.Group>
 
-      <div>
-          <label htmlFor="servers">Servers:</label>
-          {servers.map((server, index) => (
-            <div key={index}>
-              <Form.Control
-                type="text"
-                required={true}
-
-                value={server}
-                onChange={(event) => handleServerChange(index, event)}
-              />
-              {index > 0 && (
-                <Button variant="danger" type="button" onClick={() => removeServerField(index)}>
-                  Remove
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button variant="warning" type="button" onClick={addServerField}>
-            Add Server
-          </Button>
-        </div>
+     
 
  
     </Form>
@@ -513,4 +329,4 @@ console.log("brokers are ",brokers);
     )
   }
 
-  export default BrokersScreen
+  export default CreditsScreen

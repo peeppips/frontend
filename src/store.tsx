@@ -36,7 +36,28 @@ import {
   getReferralByIdReducer,
   updateReferralReducer,
   deleteReferralReducer,
+  getReferralByUserReducer
 } from './reducers/referralReducers';
+
+// Import the account reducers
+import {
+  getAllAccountsReducer,
+  getAccountByUuidReducer,
+  createAccountReducer,
+  deleteAccountReducer,
+  getAccountsByUserReducer
+} from './reducers/accountReducers';
+import { createServerReducer, getAllServersReducer, getServerByBrokerReducer, getServerByUidReducer } from './reducers/serverReducers';
+
+
+import {
+  getAllCreditsReducer,
+  getCreditByUuidReducer,
+  createCreditReducer,
+  deleteCreditReducer,
+  getCreditsByUserReducer,
+} from './reducers/creditReducers';
+
 const reducer = combineReducers({
 
   userLogin: userLoginReducer,
@@ -47,7 +68,6 @@ const reducer = combineReducers({
   userDelete: userDeleteReducer,
   userUpdate: userUpdateReducer,
   userReferrals: userReferralsReducer,
-
 
   projectList: getAllProjectsReducer,
   projectDetails: getProjectByIdReducer,
@@ -66,8 +86,29 @@ const reducer = combineReducers({
   allReferrals: getAllReferralsReducer,
   referralById: getReferralByIdReducer,
   updateReferral: updateReferralReducer,
-  deleteReferral: deleteReferralReducer
+  deleteReferral: deleteReferralReducer,
+  referralListByUser : getReferralByUserReducer,
+
+  allAccounts: getAllAccountsReducer,
+  accountByUuid: getAccountByUuidReducer,
+  createAccount: createAccountReducer,
+  deleteAccount: deleteAccountReducer,
+  accountByUser: getAccountsByUserReducer,
+
+  allServers: getAllServersReducer,
+  serverByUuid: getServerByUidReducer,
+  createServer: createServerReducer,
+  updateServer : deleteBrokerReducer,
+  deleteServer: deleteBrokerReducer,
+  serverByBroker: getServerByBrokerReducer,
   
+
+  allCredits: getAllCreditsReducer,
+  creditByUuid: getCreditByUuidReducer,
+  createCredit: createCreditReducer,
+  deleteCredit: deleteCreditReducer,
+  creditsByUser: getCreditsByUserReducer
+
 })
 
 

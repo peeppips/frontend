@@ -45,3 +45,35 @@
 .ant-collapse-item{
   background-color: white;
 }
+
+/* For webkit-based browsers */
+::-webkit-scrollbar {
+  width: 0 !important; /* Set a width for the scrollbar if you want */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important; /* Set a background color if you want */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent !important; /* Set a color for the scrollbar thumb */
+}
+
+/* For Firefox */
+/* Please note that Firefox does not support hiding the scrollbar completely */
+/* You can only change the appearance of the scrollbar in Firefox */
+/* For other browsers that support the scrollbar-width property, you can use it to control the scrollbar appearance */
+/* Check browser compatibility before using scrollbar-width */
+
+/* Example for Firefox */
+/* Set the appearance of the scrollbar thumb */
+/* This will hide the scrollbar track, but the scrollbar thumb will still be visible */
+/* Adjust the colors and styles as per your requirements */
+/* Please note that the styles for scrollbar-thumb will only be applied in Firefox */
+/* Other browsers will ignore these styles */
+/* You can also use scrollbar-color to set the color of the scrollbar thumb and track separately */
+
+* {
+  scrollbar-color: transparent transparent !important; /* Set colors for scrollbar thumb and track */
+  scrollbar-width: thin !important; /* Set the width of the scrollbar */
+}

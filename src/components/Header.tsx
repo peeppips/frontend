@@ -6,39 +6,29 @@ import {  Nav } from 'react-bootstrap'
 
 import { logout } from '../actions/userActions'
 import { RootState } from '../store';
-import { notification } from 'antd';
+// import { notification } from 'antd';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
 
-  const [api] = notification.useNotification();
+  // const [api] = notification.useNotification();
 
   const userLogin = useSelector((state: RootState) => state.userLogin);
 
   const { userInfo } = userLogin;
 
-  const openNotification = () => {
-    api.open({
-      message: 'LogoOut Successfull',
-      description:
-        'See You Soon',
-      className: 'custom-className',
-      style: {
-        width: 600,
-      },
-    });
-  };
+
 
   const dispatch = useDispatch();
   const logoutHandler = () => {
     console.log('logout');
     dispatch(logout());
-    openNotification()
+    
   };
 
   return (
 
-    <nav className="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 position-absolute mt-4 py-2 start-0 end-0 mx-4" style={{boxShadow: "none"}}>
+    <nav className="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 position-absolute py-2 start-0 end-0 " style={{boxShadow: "none"}}>
     <div className="container-fluid">
       <Link className="navbar-brand font-weight-bolder ms-lg-0 ms-3 " to="/">
         PEEPPIPS LTD

@@ -21,7 +21,7 @@ import {
 } from '../constants/projectConstants';
 
 
-export const createProject = (projectData: { email:string;resellEstimate: string; platform: string; broker: string; server: string; uploadedFilePath: string; accountNumber: number; password: string;}) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
+export const createProject = (projectData: { resellEstimate:string,botPlatform:string,uploadedFilePath:string,status:string,accounts:Array<string>,name:string,user:string}) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
   try {
     dispatch({ type: CREATE_PROJECT_REQUEST });
     
@@ -115,11 +115,11 @@ export const updateProject = (projectId: any, updatedData: any) => async (dispat
 
 
 
-export const getProjectsByUser = (userEmail: any) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
+export const getProjectsByUser = (user: any) => async (dispatch: (arg0: { type: string; payload?: any; }) => void) => {
   try {
     dispatch({ type: GET_PROJECT_BY_EMAIL_REQUEST });
 
-    const { data } = await axios.get(`http://localhost:5000/api/projects/user/${userEmail}`);
+    const { data } = await axios.get(`https://peeppipsbackend.onrender.com/api/projects/user/${user}`);
     console.log("data is",data)
     dispatch({
       type: GET_PROJECT_BY_EMAIL_SUCCESS,

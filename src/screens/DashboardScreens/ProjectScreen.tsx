@@ -1,106 +1,45 @@
-import {   useEffect } from "react";
+import {   useEffect, useState } from "react";
 // import { Button, Col, Form } from "react-bootstrap";
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
-import { UserLoginState, projectListByUserState } from "../../types";
-import { getProjectsByUser } from "../../actions/projectActions";
-import { Button, Table } from "react-bootstrap";
+import { GetAccountsByUserState, UserLoginState, projectListByUserState } from "../../types";
+import { createProject, getProjectsByUser } from "../../actions/projectActions";
+import { Button, Form,Table } from "react-bootstrap";
+import DashboardSidebar from "./components/Sidebar";
+import TopBarComponent from "./components/TopBarComponent";
+import {
+      ref,
+      uploadBytesResumable,
+      getDownloadURL 
+  } from "firebase/storage";
+import { storage } from "../../firebase";
+import Loader from "../../components/Loader";
+import { getAccountsByUser } from "../../actions/accountActions";
+import { Modal, Select, SelectProps } from "antd";
+import Message from "../../components/Message";
 
  const ProjectScreen = () => {
 
-//     const brokers = ['Broker A', 'Broker B', 'Broker C']; // Sample list of brokers
-// const serversByBroker = {
-//   'Broker A': ['Server A1', 'Server A2', 'Server A3'],
-//   'Broker B': ['Server B1', 'Server B2', 'Server B3'],
-//   'Broker C': ['Server C1', 'Server C2', 'Server C3'],
-// }; // Sample mapping of servers by broker
-
-// const [accountNumber, setAccountNumber] = useState('');
-// const [password, setPassword] = useState('');
-// const [selectedBroker, setSelectedBroker] = useState('');
-// const [selectedServer, setSelectedServer] = useState('');
-// const [lotSize, setLotSize] = useState('');
-// const [takeProfit, setTakeProfit] = useState('');
-// const [stopLoss, setStopLoss] = useState('');
-
-// // const handleAccountNumberChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setAccountNumber(e.target.value);
-// //   };
-
-// //   const handlePasswordChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setPassword(e.target.value);
-// //   };
-
-// //   const handleBrokerChange = (e: { target: { value: any; }; }) => {
-// //     const broker = e.target.value;
-// //     setSelectedBroker(broker);
-// //     setSelectedServer('');
-// //   };
-
-// //   const handleServerChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setSelectedServer(e.target.value);
-// //   };
-
-// //   const handleLotSizeChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setLotSize(e.target.value);
-// //   };
-
-// //   const handleTakeProfitChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setTakeProfit(e.target.value);
-// //   };
-
-// //   const handleStopLossChange = (e: { target: { value: SetStateAction<string>; }; }) => {
-// //     setStopLoss(e.target.value);
-// //   };
-
-// //   const handleSubmit = (e: { preventDefault: () => void; }) => {
-// //     e.preventDefault();
-
-// //     // Perform any necessary actions with the form data
-// //     console.log('Submitted Data:', {
-// //       accountNumber,
-// //       password,
-// //       selectedBroker,
-// //       selectedServer,
-// //       lotSize,
-// //       takeProfit,
-// //       stopLoss,
-// //     });
-
-//     // Reset the form fields
-//     setAccountNumber('');
-//     setPassword('');
-//     setSelectedBroker('');
-//     setSelectedServer('');
-//     setLotSize('');
-//     setTakeProfit('');
-//     setStopLoss('');
-//   };
-
-  // const serverOptions = serversByBroker[selectedBroker] || [];
   const dispatch = useDispatch()
 
   const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
 
   const { userInfo } = userLogin
 
-
-
-
-
-
   const projectListByUser = useSelector((state: RootState): projectListByUserState => state.projectListByUser as projectListByUserState);  
 
   const { projects } = projectListByUser
-
+  const navigate =useNavigate()
   useEffect(() => {
-    if (!userInfo) {
-      // Handle the case when userInfo is not available
-    } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.user.email));
+    
+      if (!userInfo) {
+        // Handle the case when userInfo is not available
+        navigate('/')
+      } else {
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
     }
   }, [dispatch, userInfo]);
   
@@ -114,69 +53,176 @@ console.log("projects is ",projects);
     }
   }, [projects]);
 
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    console.log("open model")
+    setIsModalOpen(true);
+  };
+
+
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+
+  const [formData, setFormData] = useState({
+    resellEstimate: '',
+    botPlatform: '',
+    uploadedFilePath: '',
+    status:'inactive',
+    accounts: [] as string[],
+    name : '',
+    user: userInfo?.uid
+  });
+
+
+  const handleSubmit = async(event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    try {
+      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createProject(formData));
+
+    // Reset the form fields if needed
+    setFormData({
+      resellEstimate: '',
+      botPlatform: '',
+      uploadedFilePath: '',
+      status:'inactive',
+      accounts: [],
+      name : '',
+      user: userInfo?.uid
+  
+    });
+
+  handleCancel();
+  // Fetch the updated list of brokers
+  if(userInfo){
+    await (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
+
+  }
+  }
+  catch (error) {
+    // Handle error if necessary
+    console.log(error);
+  }
+  };
+
+  const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
+
+  const [uploading, setUploading] = useState(false);
+  const uploadFileHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+      setUploading(true);
+
+      try {
+            const storageRef = ref(storage,`/bots/${new Date()}-${file.name}`)
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on(
+                  "state_changed",
+                  (err) => {
+            console.log("error is ",err)
+              getDownloadURL(uploadTask.snapshot.ref).then((url:string) => {
+                              console.log(url);
+    
+              setFormData(prevFormData => ({
+                ...prevFormData,
+                uploadedFilePath: url
+              }));
+          
+                          });
+        },
+                  () => {
+                      // download url
+                      getDownloadURL(uploadTask.snapshot.ref).then((url:string) => {
+                          console.log(url);
+
+          setFormData(prevFormData => ({
+            ...prevFormData,
+            uploadedFilePath: url
+          }));
+      
+                      });
+                  }
+              ); 
+
+        // const config = {
+        //   headers: {
+        //     'Content-Type': 'multipart/form-data',
+        //   },
+        // };
+
+        // const { data } = await axios.post('https://peeppipsbackend.onrender.com/api/upload/', formData, config);
+
+        // setImage(data);
+        // const hostBotDetailsString = localStorage.getItem('hostBotDetails');
+        // let hostBotDetails: HostBotDetails = {};
+
+        // if (hostBotDetailsString) {
+        //   hostBotDetails = JSON.parse(hostBotDetailsString);
+        // }
+
+        // hostBotDetails.uploadedFilePath = data;
+
+        // localStorage.setItem('hostBotDetails', JSON.stringify(hostBotDetails));
+        setUploading(false);
+       
+      } catch (error) {
+        console.error("error in uploading ",error);
+        setUploading(false);
+        // Display error message to the user
+      }
+    }
+  };
+
+
+  useEffect(() => {
+    (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
+
+  }, []);
+  
+  const accountByUser = useSelector((state: RootState): GetAccountsByUserState => state.accountByUser as GetAccountsByUserState);  
+  const { loading, error,accounts } = accountByUser
+
+
+  const options: SelectProps['options'] = [];
+
+  if (!loading) {
+    for (let index = 0; index < accounts.length; index++) {
+      const element = accounts[index];
+    
+      options.push({
+        value: element.uid.toString(), // Convert element to a string
+        label: `${element.login} - ${element.server}`, // Convert element to a string
+      });
+    }
+  }
+
+  
+  const handleChange = (value: string | string[]) => {
+    console.log(`Selected: ${value}`);
+    const updatedAccounts = Array.isArray(value) ? value : [value];
+  
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      accounts: updatedAccounts
+    }));
+  };
+  
+
+
+
     return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
-  <aside className="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4 " id="sidenav-main">
-    <div className="sidenav-header">
-      <i className="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <Link className="navbar-brand m-0" to=" https://demos.creative-tim.com/argon-dashboard/pages/dashboard.html " target="_blank">
-        <img src="../../../public/logo.jpg" className="navbar-brand-img h-100" alt="main_logo"/>
-        <span className="ms-1 font-weight-bold">Peeppips Ltd</span>
-      </Link>
-    </div>
-    <hr className="horizontal dark mt-0"/>
-    <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-      <ul className="navbar-nav">
-        <li className="nav-item">
-          <Link className="nav-link active" to="/">
-            <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i className="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-            </div>
-            <span className="nav-link-text ms-1">Dashboard</span>
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link " to="/projects">
-            <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i className="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
-            </div>
-            <span className="nav-link-text ms-1">Projects</span>
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link " to="/users">
-            <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i className="ni ni-credit-card text-success text-sm opacity-10"></i>
-            </div>
-            <span className="nav-link-text ms-1">Users</span>
-          </Link>
-        </li>
-   
-        <li className="nav-item">
-          <Link className="nav-link " to="/profile">
-            <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i className="ni ni-single-copy-04 text-warning text-sm opacity-10"></i>
-            </div>
-            <span className="nav-link-text ms-1">Profile</span>
-          </Link>
-        </li>
- 
-      </ul>
-    </div>
-    <div className="sidenav-footer mx-3 ">
-      <div className="card card-plain shadow-none" id="sidenavCard">
-        <img className="w-50 mx-auto" src="../../../public/icon-documentation.svg" alt="sidebar_illustration"/>
-        <div className="card-body text-center p-3 w-100 pt-0">
-          <div className="docs-info">
-            <h6 className="mb-0">Need help?</h6>
-            <p className="text-xs font-weight-bold mb-0">Please check our docs</p>
-          </div>
-        </div>
-      </div>
-      <a href="https://www.creative-tim.com/learning-lab/bootstrap/license/argon-dashboard" target="_blank" className="btn btn-dark btn-sm w-100 mb-3">Documentation</a>
-    </div>
-  </aside>
+              <DashboardSidebar/>
   <main className="main-content position-relative border-radius-lg ">
  
     <nav className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
@@ -295,128 +341,37 @@ console.log("projects is ",projects);
     </nav>
   
     <div className="container-fluid py-4">
-      <div className="row">
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Projects</p>
-                    <h5 className="font-weight-bolder">
-                     {projects?.length}
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+55%</span>
-                      since yesterday
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                    <i className="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Referrals</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+3%</span>
-                      since last week
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                    <i className="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">My Input Variables</p>
-                    <h5 className="font-weight-bolder">
-                      0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-danger text-sm font-weight-bolder">-2%</span>
-                      since last quarter
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                    <i className="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-xl-3 col-sm-6">
-          <div className="card">
-            <div className="card-body p-3">
-              <div className="row">
-                <div className="col-8">
-                  <div className="numbers">
-                    <p className="text-sm mb-0 text-uppercase font-weight-bold">Accounts Under Me</p>
-                    <h5 className="font-weight-bolder">
-                     0
-                    </h5>
-                    {/* <p className="mb-0">
-                      <span className="text-success text-sm font-weight-bolder">+5%</span> than last month
-                    </p> */}
-                  </div>
-                </div>
-                <div className="col-4 text-end">
-                  <div className="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                    <i className="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
+    {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+    <TopBarComponent />)}
   
+
       <div className="row mt-4">
         <div className="col-lg-12 mb-lg-0 mb-4">
           <div className="card ">
             <div className="card-header pb-0 p-3">
               <div className="d-flex justify-content-between">
-                <h6 className="mb-2">My Projects</h6>
+                <h6 className="mb-2">My Projects({projects?.length})</h6>
+                <Button  onClick={showModal} variant="primary">Add</Button>
+
               </div>
             </div>
 
             <div className="card-body">
           
-            <Table striped bordered hover variant="dark">
+            <Table striped bordered hover >
       <thead>
         <tr>
           <th>#</th>
        
-          <th>Account</th>
-          <th>Broker</th>
-          <th>Email</th>
-          <th>Password</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Accounts</th>
+          <th>Platform</th>
           <th>Action</th>
 
         </tr>
@@ -425,11 +380,15 @@ console.log("projects is ",projects);
       {projects && projects.length > 0 ? (
   projects.map((project, index) => (
     <tr key={index}>
-      <td>{index}</td>
-      <td>{project.accountNumber}</td>
-      <td>{project.broker}</td>
-      <td>{project.email}</td>
-      <td>{project.password}</td>
+      <td>{index+1}</td>
+      <td>{project.name}</td>
+      <td>{project.status}</td>
+      
+      <td>{project.accounts.map((account:string) => (
+  <>{account}</>
+))}
+</td>
+      <td>{project.botPlatform}</td>
       <td>
         <Button>View</Button>
         <Button variant="warning">Edit</Button>
@@ -447,78 +406,6 @@ console.log("projects is ",projects);
 
       </tbody>
     </Table>
-    
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group as={Col} controlId="formAccountNumber">
-          <Form.Label>Account Number</Form.Label>
-          <Form.Control
-            type="text"
-            value={accountNumber}
-            onChange={handleAccountNumberChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formBroker">
-          <Form.Label>Broker</Form.Label>
-          <Form.Control as="select" value={selectedBroker} onChange={handleBrokerChange}>
-            <option value="">Select a broker</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formServer">
-          <Form.Label>Server</Form.Label>
-          <Form.Control as="select" value={selectedServer} onChange={handleServerChange} disabled={!selectedBroker}>
-            <option value="">Select a server</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formLotSize">
-          <Form.Label>Lot Size</Form.Label>
-          <Form.Control
-            type="text"
-            value={lotSize}
-            onChange={handleLotSizeChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formTakeProfit">
-          <Form.Label>Take Profit</Form.Label>
-          <Form.Control
-            type="text"
-            value={takeProfit}
-            onChange={handleTakeProfitChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formStopLoss">
-          <Form.Label>Stop Loss</Form.Label>
-          <Form.Control
-            type="text"
-            value={stopLoss}
-            onChange={handleStopLossChange}
-          />
-        </Form.Group>
-
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!accountNumber || !password || !selectedBroker || !selectedServer || !lotSize || !takeProfit || !stopLoss}
-        >
-          Submit
-        </Button>
-      </Form> */}
-    
   </div>
 
 
@@ -528,11 +415,97 @@ console.log("projects is ",projects);
         
      
         </div>
+        
       </div>
    
    
   </main>
   
+  <Modal title="Add Project" open={isModalOpen} footer={[     <Button variant="primary" onClick={handleSubmit} type="submit">
+        Submit
+      </Button>]} onCancel={handleCancel}>
+  <Form >
+      <Form.Group controlId="formName">
+        <Form.Label>Name</Form.Label>
+
+
+        <Form.Control
+          type="text"
+          name="name"
+          required={true}
+          value={formData.name}
+          onChange={handleInputChange}
+          placeholder="Enter name"
+        />
+      </Form.Group>
+
+      <Form.Group controlId="formCountry">
+        <Form.Label> How many people do you estimate you will resell to in a month?</Form.Label>
+        <Form.Control
+            as="select"
+            name="resellEstimate"
+            value={formData.resellEstimate}
+            onChange={handleInputChange}
+          >
+            <option value="">Select an option</option>
+            <option value="0-10">0-10</option>
+            <option value="11-50">11-50</option>
+            <option value="51-100">51-100</option>
+            <option value="101-500">101-500</option>
+            <option value="501+">501+</option>
+          </Form.Control>
+      </Form.Group>
+
+      <Form.Group controlId="formPlatform">
+          <Form.Label>Which platform does your bot run on?</Form.Label>
+          <Form.Control
+            as="select"
+            name="botPlatform"
+            value={formData.botPlatform}
+            onChange={handleInputChange}
+          >
+            <option value="">Select an option</option>
+            <option value="MT5">MT5</option>
+            <option value="MT4">MT4</option>
+            <option value="Python">Bot is made in Python</option>
+          </Form.Control>
+        </Form.Group>
+
+ 
+        <Form.Group  controlId="formBotFile">
+            <Form.Label>Upload the bot</Form.Label>
+            <Form.Control type="file" accept=".ex5," onChange={uploadFileHandler} />
+            {uploading && <Loader />}
+            <Form.Text className="text-muted">
+             
+              {formData.uploadedFilePath.length > 0 ? <>successfully Added Your Bot</> : <> Please upload an ex5  file containing your bot.</>}
+              
+              
+            </Form.Text>
+            
+          </Form.Group>
+
+
+          <Form.Group  controlId="formBotFile">
+            <Form.Label>Accounts</Form.Label>
+           
+            <Select
+          mode="tags"
+          size="middle"
+          placeholder="Please select Accounts"
+          defaultValue={[]}
+          onChange={handleChange}
+          style={{ width: '100%' }}
+          options={options}
+        />
+
+           {/* {accounts && accounts.map((i)=>(<>{i}</>))} */}
+           
+          </Form.Group>
+
+    </Form>
+      </Modal>
+
             </>
   
     )

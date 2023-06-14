@@ -3,48 +3,45 @@ import {   useEffect, useState } from "react";
 import { RootState } from "../../store";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
-import { UserLoginState, brokerListByUserState } from "../../types";
-import { getProjectsByUser } from "../../actions/projectActions";
-import { Badge, Button, Form, Table } from "react-bootstrap";
+import { GetAccountsByUserState, UserLoginState, brokerListByUserState } from "../../types";
+import {  Button,  Form,  Table } from "react-bootstrap";
 import DashboardSidebar from "./components/Sidebar";
-import { Modal, Select } from "antd";
+import { Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { createBroker, getAllBrokers } from "../../actions/brokerActions";
 import {  useNavigate } from "react-router-dom";
 import TopBarComponent from "./components/TopBarComponent";
+import { createAccount, getAccountsByUser } from "../../actions/accountActions";
+import Loader from "../../components/Loader";
+import Message from "../../components/Message";
+import { getAllBrokers } from "../../actions/brokerActions";
+import { getServersByBroker } from "../../actions/serverActions";
 
- const BrokersScreen = () => {
-  const [countryOptions, setCountryOptions] = useState([]);
-
-  useEffect(() => {
-    fetchCountryOptions();
-  }, []);
-
-  const fetchCountryOptions = async () => {
-    try {
-      const response = await fetch('https://restcountries.com/v3.1/all');
-      const data = await response.json();
-
-      const options = data.map((country: { name: { common: any; }; }) => ({
-        value: country.name.common,
-        label: country.name.common,
-      }));
-
-      setCountryOptions(options);
-    } catch (error) {
-      console.error('Error fetching country options:', error);
-    }
-  };
+ const AccountsScreen = () => {
+  const [broker_selected, setBroker] = useState('')
+  const [message,] = useState<string | null>(null);
 
   const dispatch = useDispatch()
+
+  const accountByUser = useSelector((state: RootState): GetAccountsByUserState => state.accountByUser as GetAccountsByUserState);  
+
+  const { loading, error,accounts } = accountByUser
 
   const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
 
   const { userInfo } = userLogin
 
-  const allBrokers = useSelector((state: RootState): brokerListByUserState => state.allBrokers as brokerListByUserState);  
 
+  const allBrokers = useSelector((state: RootState): brokerListByUserState => state.allBrokers as brokerListByUserState);  
   const { brokers } = allBrokers
+
+  useEffect(() => {
+    (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo?.uid));
+
+  }, []);
+
+
+
+  
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -52,48 +49,21 @@ import TopBarComponent from "./components/TopBarComponent";
       // Handle the case when userInfo is not available
       navigate('/')
     } else {
-      (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.email));
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getAccountsByUser(userInfo.uid));
       (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
-      
-      
-
     }
   }, [dispatch, userInfo]);
 
-  const handleSubmit = async(event: { preventDefault: () => void; }) => {
-    event.preventDefault();
-    try {
-     
-      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createBroker(formData));
-      
-      // Reset the form fields if needed
-      setFormData({
-        name: '',
-        country: '',
-        regulations: '',
-        servers: [],
-      });
-  
-      handleCancel();
-      
-      // Fetch the updated list of brokers
-      await (dispatch as ThunkDispatch<any, any, AnyAction>)(getAllBrokers());
-     
-    } catch (error) {
-      // Handle error if necessary
-      console.log(error);
-    }
-  };
-  
+
   useEffect(() => {
-    if (brokers == undefined) {
-      console.log("brokers is undefined:");
+    if (accounts == undefined) {
+      console.log("accounts is undefined:");
     }
     else{
-console.log("brokers are ",brokers);
+console.log("accounts are ",accounts);
 
     }
-  }, [brokers]);
+  }, [accounts]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -108,55 +78,55 @@ console.log("brokers are ",brokers);
     setIsModalOpen(false);
   };
 
-  const [formData, setFormData] = useState({
-    name: '',
-    country: '',
-    regulations: '',
-    servers: [],
+
+  const [account, setAccount] = useState({
+    user: userInfo?.uid,
+    login: '',
+    password: '',
+    investorPassword: '',
+    lotSize: '',
+    riskManagementPercentage: '',
+    takeProfit: '',
+    stopLoss: '',
+    broker: '',
+    server: ''
   });
 
-  const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
-  };
-
- 
-  const [servers, setServers] = useState(['']);
-
-  const handleServerChange = (index: number, event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    const updatedServers = [...servers];
-    updatedServers[index] = event.target.value;
-    setServers(updatedServers);
-    const newLocal = (prevState: any) => ({
-      ...prevState,
-      servers: updatedServers
-    });
-    setFormData(newLocal);
-  };
-  
-  
-
-  
-  const addServerField = () => {
-    setServers([...servers, '']);
-  };
-
-  const removeServerField = (index: number) => {
-    const updatedServers = [...servers];
-    updatedServers.splice(index, 1);
-    setServers(updatedServers);
-  };
-
-  const onChange = (value: string) => {
-    console.log(`selected ${value}`);
-    setFormData((prevState) => ({
-      ...prevState,
-      country: value
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAccount((prevAccount) => ({
+      ...prevAccount,
+      [name]: value,
     }));
   };
-  
-  const onSearch = (value: string) => {
-    console.log('search:', value);
+
+  const handleSubmit = (event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    // Perform submission logic or dispatch an action
+    console.log(account);
+    (dispatch as ThunkDispatch<any, any, AnyAction>)(createAccount(account));
+
   };
+
+
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setAccount((prevAccount) => ({
+      ...prevAccount,
+      [name]: value,
+    }));
+    console.log(name)
+    if (name == "") {
+      setBroker(value);
+      (dispatch as ThunkDispatch<any, any, AnyAction>)(getServersByBroker(value));
+    }
+ 
+
+  };
+
+  const selectedBrokerObj = brokers?.find(broker => broker.name === broker_selected);
+
     return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
@@ -281,56 +251,74 @@ console.log("brokers are ",brokers);
     </nav>
   
     <div className="container-fluid py-4">
-     <TopBarComponent />
+
+    {!loading ? (
+           <TopBarComponent />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ):(<></>)}
+    
   
       <div className="row mt-4">
         <div className="col-lg-12 mb-lg-0 mb-4">
           <div className="card ">
             <div className="card-header pb-0 p-3">
               <div className="d-flex justify-content-between">
-                <h6 className="mb-2">Brokers({brokers?.length})</h6>
+                <h6 className="mb-2">Accounts ({accounts?.length})</h6>
 
                 <Button  onClick={showModal} variant="primary">Add</Button>
               </div>
             </div>
 
             <div className="card-body">
-          
+            {message && <Message variant='danger'>{message}</Message>}
+        {}
+        {/* {success && <Message variant='success'>Profile Updated</Message>} */}
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
             <Table striped bordered hover>
       <thead>
         <tr>
           <th>#</th>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Country</th>
-          <th>Regulations</th>
-          <th>Servers</th>
+          <th>Login</th>
+          <th>Password</th>
+          <th>Broker</th>
+          <th>Server</th>
+          <th>R.M</th>
+          <th>S.L</th>
+          <th>T.P</th>
+
+         <th> </th>
          
 
         </tr>
       </thead>
       <tbody>
-      {brokers && brokers.length > 0 ? (
-  brokers.map((broker, index) => (
+      {accounts && accounts.length > 0 ? (
+  accounts.map((account, index) => (
     <tr key={index}>
       <td>{index}</td>
-      <td>{broker.uid}</td>
-      <td>{broker.name}</td>
-      <td>{broker.country}</td>
-      <td>{broker.regulations}</td>
-      <td>
-      {broker.servers.map((i: string, index: number) => (
-  <Badge  key={index}>
-    {i}
-  </Badge>
-))}
+      <td>{account.login}</td>
+      <td>{account.password}</td>
+      <td>{account.broker}</td>
+      <td>{account.server}</td>
+      <td>{account.riskManagementPercentage} % </td>
+      <td>{account.takeProfit} pips </td>
+      <td>{account.stopLoss} pips</td>
 
-</td>     
+      <td>
+          <Button>View</Button>
+          <Button variant="warning">Edit</Button>
+          <Button variant="danger">Delete</Button>
+      </td>     
     </tr>
   ))
 ) : (
   <tr>
-    <td colSpan={6}>No Brokers found.</td>
+    <td colSpan={6}>No Accounts found.</td>
   </tr>
 )}
 
@@ -338,77 +326,8 @@ console.log("brokers are ",brokers);
 
       </tbody>
     </Table>
+        )}
     
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group as={Col} controlId="formAccountNumber">
-          <Form.Label>Account Number</Form.Label>
-          <Form.Control
-            type="text"
-            value={accountNumber}
-            onChange={handleAccountNumberChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formBroker">
-          <Form.Label>Broker</Form.Label>
-          <Form.Control as="select" value={selectedBroker} onChange={handleBrokerChange}>
-            <option value="">Select a broker</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formServer">
-          <Form.Label>Server</Form.Label>
-          <Form.Control as="select" value={selectedServer} onChange={handleServerChange} disabled={!selectedBroker}>
-            <option value="">Select a server</option>
-           
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formLotSize">
-          <Form.Label>Lot Size</Form.Label>
-          <Form.Control
-            type="text"
-            value={lotSize}
-            onChange={handleLotSizeChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formTakeProfit">
-          <Form.Label>Take Profit</Form.Label>
-          <Form.Control
-            type="text"
-            value={takeProfit}
-            onChange={handleTakeProfitChange}
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formStopLoss">
-          <Form.Label>Stop Loss</Form.Label>
-          <Form.Control
-            type="text"
-            value={stopLoss}
-            onChange={handleStopLossChange}
-          />
-        </Form.Group>
-
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!accountNumber || !password || !selectedBroker || !selectedServer || !lotSize || !takeProfit || !stopLoss}
-        >
-          Submit
-        </Button>
-      </Form> */}
     
   </div>
 
@@ -425,87 +344,138 @@ console.log("brokers are ",brokers);
    
   </main>
   
-  <Modal title="Add Broker" open={isModalOpen} footer={[     <Button variant="primary" onClick={handleSubmit} type="submit">
-        Submit
-      </Button>]} onCancel={handleCancel}>
-  <Form >
-      <Form.Group controlId="formName">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          name="name"
-          required={true}
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter name"
-        />
-      </Form.Group>
+  <Modal title="Add Account" open={isModalOpen} onCancel={handleCancel}>
 
-      <Form.Group controlId="formCountry">
-        <Form.Label>Country</Form.Label>
-        {/* <Form.Control
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleInputChange}
-          placeholder="Enter country"
-        /> */}
-  <br/>
-  {countryOptions.length > 0 ? (
-  <Select
-    style={{ width: "100%" }}
-    showSearch
-    placeholder="Select a person"
-    optionFilterProp="children"
-    onChange={onChange}
-    onSearch={onSearch}
-    options={countryOptions}
+  <Form onSubmit={handleSubmit}>
 
-    
+<Form.Group controlId="login">
+  <Form.Label>Login</Form.Label>
+  <Form.Control
+    type="number"
+    name="login"
+    required={true}
+    value={account.login}
+    onChange={handleChange}
   />
-) : (
-  <p>No options available</p>
-)}
+</Form.Group>
 
-      </Form.Group>
+<Form.Group controlId="password">
+  <Form.Label>Password</Form.Label>
+  <Form.Control
+    type="password"
+    name="password"
+    required={true}
+    value={account.password}
+    onChange={handleChange}
+  />
+</Form.Group>
 
-      <Form.Group controlId="formRegulations">
-        <Form.Label>Regulations</Form.Label>
-        <Form.Control
-          type="text"
-          name="regulations"
-          required={true}
-          value={formData.regulations}
-          onChange={handleInputChange}
-          placeholder="Enter regulations"
-        />
-      </Form.Group>
+<Form.Group controlId="investorPassword">
+  <Form.Label>Investor Password</Form.Label>
+  <Form.Control
+    type="password"
+    name="investorPassword"
+    required={true}
+    value={account.investorPassword}
+    onChange={handleChange}
+  />
+</Form.Group>
 
-      <div>
-          <label htmlFor="servers">Servers:</label>
-          {servers.map((server, index) => (
-            <div key={index}>
-              <Form.Control
-                type="text"
-                required={true}
+<Form.Group controlId="lotSize">
+  <Form.Label>Lot Size</Form.Label>
+  <Form.Control
+    type="number"
+    name="lotSize"
+    required={true}
+    value={account.lotSize}
+    onChange={handleChange}
+  />
+</Form.Group>
 
-                value={server}
-                onChange={(event) => handleServerChange(index, event)}
-              />
-              {index > 0 && (
-                <Button variant="danger" type="button" onClick={() => removeServerField(index)}>
-                  Remove
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button variant="warning" type="button" onClick={addServerField}>
-            Add Server
-          </Button>
-        </div>
+<Form.Group controlId="riskManagementPercentage">
+  <Form.Label>Risk Management Percentage</Form.Label>
+  <Form.Control
+    type="number"
+    name="riskManagementPercentage"
+    required={true}
+    value={account.riskManagementPercentage}
+    onChange={handleChange}
+  />
+</Form.Group>
 
- 
-    </Form>
+<Form.Group controlId="takeProfit">
+  <Form.Label>Take Profit</Form.Label>
+  <Form.Control
+    type="number"
+    name="takeProfit"
+    required={true}
+    value={account.takeProfit}
+    onChange={handleChange}
+  />
+</Form.Group>
+
+<Form.Group controlId="stopLoss">
+  <Form.Label>Stop Loss</Form.Label>
+  <Form.Control
+    type="number"
+    name="stopLoss"
+    required={true}
+    value={account.stopLoss}
+    onChange={handleChange}
+  />
+</Form.Group>
+
+<Form.Group controlId="stopLoss">
+  <Form.Label>Broker</Form.Label>
+  <select 
+   name="broker"
+   value={account.broker}
+   onChange={handleSelectChange}
+  className="form-select">
+  {brokers && brokers.map((broker:any, index) => (
+      <option key={index} value={broker.name}>
+        {broker.name}
+      </option>
+    ))}
+  </select>
+</Form.Group>
+
+<Form.Group controlId="stopLoss">
+  <Form.Label>Server</Form.Label>
+<>
+
+{selectedBrokerObj && (
+        <select 
+        name="server"
+        value={account.server}
+        onChange={handleSelectChange}
+        className="form-select"
+        >
+          <>              
+          {selectedBrokerObj.servers.map((server:any, index:number) => (
+                <option key={index} value={server}>
+                {server}
+                </option>
+            ))}
+        </>
+
+        </select>
+      )}
+
+</>
+  
+</Form.Group>
+
+
+
+
+
+
+<Button variant="primary" type="submit" onClick={handleSubmit}>
+  Submit
+</Button>
+</Form>
+    
       </Modal>
 
             </>
@@ -513,4 +483,4 @@ console.log("brokers are ",brokers);
     )
   }
 
-  export default BrokersScreen
+  export default AccountsScreen

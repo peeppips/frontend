@@ -1,8 +1,17 @@
-import axios from 'axios';
-import { useState } from 'react';
+// import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Form, Col, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../components/Loader';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { UserLoginState } from '../types';
+import {
+      ref,
+      uploadBytesResumable,
+      getDownloadURL 
+  } from "firebase/storage";
+import { storage } from '../firebase';
 
 interface HostBotDetails {
   uploadedFilePath?: string;
@@ -10,7 +19,7 @@ interface HostBotDetails {
 }
 
 const UploadBotForm = () => {
-  const [, setImage] = useState('');
+  // const [, setImage] = useState('');
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
 
@@ -22,34 +31,80 @@ const UploadBotForm = () => {
       setUploading(true);
 
       try {
-        const config = {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        };
+            const storageRef = ref(storage,`/bots/${new Date()}-${file.name}`)
+            const uploadTask = uploadBytesResumable(storageRef, file);
 
-        const { data } = await axios.post('https://peeppipsbackend.onrender.com/api/upload/', formData, config);
+            uploadTask.on(
+                  "state_changed",
+          //         (snapshot) => {
+          // //             const percent = Math.round(
+          // //                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          // //             );
+          //  
+          //             // update progress
+          // //             setPercent(percent);
+          //         },
+                  (err) => console.log(err),
+                  () => {
+                      // download url
+                      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                          console.log(url);
 
-        setImage(data);
-        const hostBotDetailsString = localStorage.getItem('hostBotDetails');
+         const hostBotDetailsString = localStorage.getItem('hostBotDetails');
         let hostBotDetails: HostBotDetails = {};
 
         if (hostBotDetailsString) {
           hostBotDetails = JSON.parse(hostBotDetailsString);
         }
 
-        hostBotDetails.uploadedFilePath = data;
+        hostBotDetails.uploadedFilePath = url;
 
         localStorage.setItem('hostBotDetails', JSON.stringify(hostBotDetails));
+      
+                      });
+                  }
+              ); 
+
+        // const config = {
+        //   headers: {
+        //     'Content-Type': 'multipart/form-data',
+        //   },
+        // };
+
+        // const { data } = await axios.post('https://peeppipsbackend.onrender.com/api/upload/', formData, config);
+
+        // setImage(data);
+        // const hostBotDetailsString = localStorage.getItem('hostBotDetails');
+        // let hostBotDetails: HostBotDetails = {};
+
+        // if (hostBotDetailsString) {
+        //   hostBotDetails = JSON.parse(hostBotDetailsString);
+        // }
+
+        // hostBotDetails.uploadedFilePath = data;
+
+        // localStorage.setItem('hostBotDetails', JSON.stringify(hostBotDetails));
         setUploading(false);
         navigate('/host-bot/5');
       } catch (error) {
-        console.error(error);
+        console.error("error in uploading ",error);
         setUploading(false);
         // Display error message to the user
       }
     }
   };
+  const userLogin = useSelector((state: RootState): UserLoginState => state.userLogin as UserLoginState);  
+ 
+  // Destructure the properties with their types
+const { userInfo } = userLogin;
+
+  useEffect(() => {
+    if (!userInfo) {
+      navigate('/')
+    } else {
+      
+    }
+  }, [userInfo]);
 
   return (
     <div className="centered-container">
