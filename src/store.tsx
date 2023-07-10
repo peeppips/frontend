@@ -115,24 +115,44 @@ const reducer = combineReducers({
 
 
 
-// const userInfoFromStorage = localStorage.getItem('userInfo')
-//   ? JSON.parse(localStorage.getItem('userInfo'))
-//   : null
+const userInfoFromStorageString = localStorage.getItem('userInfo');
+
+let userInfoFromStorage = null;
+if (userInfoFromStorageString) {
+  try {
+    userInfoFromStorage = JSON.parse(userInfoFromStorageString);
+  } catch (error) {
+    console.error('Error parsing user info from localStorage:', error);
+  }
+}
 
 
-// const initialState = {
-//   // cart: {
-//   //   cartItems: cartItemsFromStorage,
-//   //   shippingAddress: shippingAddressFromStorage,
-//   // },
-//   userLogin: { userInfo: userInfoFromStorage },
-// }
+
+const initialState: {
+  userLogin?: any;
+  userRegister?: undefined;
+  userDetails?: undefined;
+  userUpdateProfile?: {} | undefined;
+  userList?: undefined;
+  userDelete?: {} | undefined;
+  userUpdate?: undefined;
+  userReferrals?: undefined;
+  // ... add other properties if needed
+} = {};
+
+if (userInfoFromStorage) {
+  initialState.userLogin = { userInfo: userInfoFromStorage };
+} else {
+  initialState.userLogin = { userInfo: null };
+}
+
+
 
 const middleware = [thunk]
 
 const store = createStore(
   reducer,
-  // initialState,
+  initialState,
   composeWithDevTools(applyMiddleware(...middleware))
 )
 

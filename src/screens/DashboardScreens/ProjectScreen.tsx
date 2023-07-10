@@ -16,6 +16,8 @@ import {  getAccountsByUser } from "../../actions/accountActions";
 import { Drawer, Modal, Popconfirm, Select, SelectProps, notification } from "antd";
 import Message from "../../components/Message";
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../../firebase";
 
  const ProjectScreen = () => {
 
@@ -69,50 +71,70 @@ console.log("projects is ",projects);
     resellEstimate: '',
     botPlatform: '',
     uploadedFilePath: '',
-    status:'inactive',
+    status:'active',
     accounts: [] as string[],
     name : '',
     user: userInfo?.uid
   });
 
 
-  const handleSubmit = async(event: { preventDefault: () => void; }) => {
-    event.preventDefault();
-    try {
-      await (dispatch as ThunkDispatch<any, any, AnyAction>)(createProject(formData));
+  const handleSubmit = async () => {
+    if (selectedFile) {
+      try {
+        setUploading(true);
+        const storageRef = ref(storage, `/bots/${new Date()}-${selectedFile.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, selectedFile);
 
-    // Reset the form fields if needed
-    setFormData({
-      id:"",
-      resellEstimate: '',
-      botPlatform: '',
-      uploadedFilePath: '',
-      status:'active',
-      accounts: [],
-      name : '',
-      user: userInfo?.uid
-  
-    });
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            // Handle upload progress if needed
+            console.log("snapshot is ",snapshot)
+          },
+          (error) => {
+            console.error('Error uploading file:', error);
+            setUploading(false);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((url: string) => {
+              setFormData((prevFormData) => ({
+                ...prevFormData,
+                uploadedFilePath: url
+              }));
+              setUploading(false);
+              (dispatch as ThunkDispatch<any, any, AnyAction>)(createProject(formData));
+              // Perform additional form submission or processing here
+              (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
 
-  handleCancel();
-  // Fetch the updated list of brokers
-  if(userInfo){
-    await (dispatch as ThunkDispatch<any, any, AnyAction>)(getProjectsByUser(userInfo.uid));
+            });
+          }
+        );
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setUploading(false);
+       
 
-  }
-  }
-  catch (error) {
-    // Handle error if necessary
-    console.log(error);
-  }
+        
+        // Display error message to the user
+      }
+    } else {
+      // File not selected, handle accordingly
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+    }
   };
 
   const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
-  const [, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const [uploading, ] = useState(false);
   const uploadFileHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -402,18 +424,18 @@ console.log("projects is ",projects);
         </Form.Group>
 
  
-        <Form.Group  controlId="formBotFile">
-            <Form.Label>Upload the bot</Form.Label>
-            <Form.Control type="file" accept=".ex5," onChange={uploadFileHandler} />
-            {uploading && <Loader />}
-            <Form.Text className="text-muted">
-             
-              {formData.uploadedFilePath.length > 0 ? <>successfully Added Your Bot</> : <> Please upload an ex5  file containing your bot.</>}
-              
-              
-            </Form.Text>
-            
-          </Form.Group>
+        <Form.Group controlId="formBotFile">
+          <Form.Label>Update the bot</Form.Label>
+          <Form.Control type="file" accept=".ex5" onChange={handleFileChange} />
+          {uploading && <Loader />}
+          <Form.Text className="text-muted">
+            {formData.uploadedFilePath.length > 0 ? (
+              <>Successfully added your bot</>
+            ) : (
+              <>Please upload an ex5 file containing your bot.</>
+            )}
+          </Form.Text>
+        </Form.Group>
 
 
           <Form.Group  controlId="formBotFile">

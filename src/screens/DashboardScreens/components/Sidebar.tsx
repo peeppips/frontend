@@ -25,7 +25,7 @@ const DashboardSidebar = () => {
   const accountByUser = useSelector((state: RootState): GetAccountsByUserState => state.accountByUser as unknown as GetAccountsByUserState);  
 
   const { accounts } = accountByUser
-
+  console.log(accounts)
   const dispatch = useDispatch();
   const logoutHandler = () => {
     console.log('logout');
@@ -36,7 +36,7 @@ const DashboardSidebar = () => {
       <aside className="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4 " id="sidenav-main">
       <div className="sidenav-header">
         <i className="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-        <Link className="navbar-brand m-0" to="/">
+        <Link className="navbar-brand m-0" to="/dashboard">
           <img src={myLogo} className="navbar-brand-img h-100" alt="main_logo"/>
           <span className="ms-1 font-weight-bold">Peeppips Ltd</span>
         </Link>
@@ -45,15 +45,14 @@ const DashboardSidebar = () => {
       <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul className="navbar-nav">
           <li className="nav-item">
-          <Link className={location.pathname === "/login" ? "nav-link active" : "nav-link"} to="/login">
+          <Link className={location.pathname === "/dashboard" ? "nav-link active" : "nav-link"} to="/dashboard">
               <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i className="ni ni-tv-2 text-primary text-sm opacity-10"></i>
               </div>
               <span className="nav-link-text ms-1">Dashboard</span>
             </Link>
           </li>
-          {accounts && accounts.length > 0 ? (
-            <>
+        
           <li className="nav-item">
             <Link className={location.pathname === "/accounts" ? "nav-link active" : "nav-link"} to="/accounts">
               <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -90,9 +89,7 @@ const DashboardSidebar = () => {
               <span className="nav-link-text ms-1">User Accounts</span>
             </Link>
           </li>
-  
-        
-     
+
           <li className="nav-item">
             <Link className={location.pathname === "/profile" ? "nav-link active" : "nav-link"} to="/profile">
               <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -101,8 +98,8 @@ const DashboardSidebar = () => {
               <span className="nav-link-text ms-1">Profile</span>
             </Link>
           </li>
-   {userInfo && userInfo.isAdmin == true ? <>
-   
+
+   {userInfo && userInfo.isAdmin == true && (<>
     <li className="nav-item mt-3">
           <h6 className="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Admin pages</h6>
         </li>
@@ -143,9 +140,9 @@ const DashboardSidebar = () => {
               <span className="nav-link-text ms-1">Bussiness</span>
             </Link>
           </li>
-          </>
+          </>)}
 
-   : <> </>} </>) : <></> }
+   
         
         <li className="nav-item">
             <Link onClick={logoutHandler} className="nav-link" to={""} >

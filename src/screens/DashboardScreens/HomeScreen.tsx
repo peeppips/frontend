@@ -164,13 +164,8 @@ console.log("accounts are ",accounts);
   return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
-        
-              {loading ? (
-          <Loader />
-        ) : error ? (
-          <Message variant='danger'>{error}</Message>
-        ) : (
-    <DashboardSidebar />)}
+
+    <DashboardSidebar />
         
         
        
@@ -188,7 +183,9 @@ console.log("accounts are ",accounts);
   
   <>
   {accounts && accounts.length > 0 ? (
-      <div className="row mt-4">
+    <>
+    
+    <div className="row mt-4">
       <div className="col-lg-6 mb-lg-0 mb-4">
         <div className="card ">
           <div className="card-header pb-0 p-3">
@@ -223,6 +220,8 @@ console.log("accounts are ",accounts);
         </div>
       </div>
       </div>
+    </>
+      
 ) : (
 <>
 {loading ? (

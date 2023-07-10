@@ -23,9 +23,23 @@ import CustomerScreen from './screens/DashboardScreens/CustomersScreen';
 // import HomeScreen from './screens/HomeScreen';
 import CreditsScreen from './screens/DashboardScreens/CreditsScreen';
 import UserAccountScreen from './screens/DashboardScreens/UserAccountScreen';
+import DashboardIndex from './screens/DashboardScreens/HomeScreen';
+import { useEffect } from 'react';
 
 
 function App() {
+
+
+  useEffect(() => {
+    const sessionKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'; // Replace with your session key
+    const sessionToken = window.sessionStorage.getItem(sessionKey);
+
+    if (sessionToken) {
+      // Re-register the active session using the session token
+      // Add your code here to handle the session registration
+    }
+  }, []);
+
   return (
     <>
       <Router>
@@ -35,7 +49,7 @@ function App() {
             <Routes>
               <Route path='/' element={<LoginScreen />} />
               <Route path='/register' element={<RegisterScreen />} />
-              <Route path='/login' element={<LoginScreen />} />
+              <Route path='/dashboard' element={<DashboardIndex />} />
               <Route path='/host-bots/1' element={<ResellingEstimateForm/>} />
               <Route path='/host-bot/2' element={<PlatformQuestionForm/>} />
               <Route path='/host-bot/3' element={<BrokerQuestionForm/>} />

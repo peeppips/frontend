@@ -35,7 +35,7 @@ const RegisterScreen: React.FC = () => {
   useEffect(() => {
     if (userInfo) {
       // document.location.href = '/';
-      navigate("/login")
+      navigate("/dashboard")
       // history.push(redirect)
     }
 
@@ -122,7 +122,7 @@ const RegisterScreen: React.FC = () => {
               {error && <Message variant='danger'>{error}</Message>}
               {loading && <Loader />}
               <h5>Sign Up</h5>
-              <p className="mb-0">or <Link to="/login">Login to Your Account</Link></p>
+              <p className="mb-0">or <Link to="/">Login to Your Account</Link></p>
 
             </div>
             <div className="row px-xl-5 px-sm-4 px-3">
@@ -229,9 +229,9 @@ const RegisterScreen: React.FC = () => {
 
                   <>
                 {email == undefined ?<div role="alert" className="fade alert alert-danger show">Email is not confirmed</div>:<>
-                {firstName.length > 0 && secondName.length > 0 && email.length > 0 && password.length > 0 && confirmPassword.length > 0 &&                     <Button className='btn-block w-100 mt-4' type="submit" variant="primary">
+                                  <Button className='btn-block w-100 mt-4' disabled={(firstName.length > 0 && secondName.length > 0 && email.length > 0 && password.length > 0 && confirmPassword.length > 0) ? true :false  } type="submit" variant="primary">
                       Register User Details
-                    </Button>}
+                    </Button>
                 </>}
                 </>
                
@@ -244,7 +244,7 @@ const RegisterScreen: React.FC = () => {
           </div>
         </div>
         <div className="col-xl-8 col-lg-7 col-md-5">
-        <div className="justify-content-center position-relative bg-gradient-primary h-100  px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden d-flex align-items-center" style={{backgroundImage: `url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg')`,backgroundSize: 'cover'}} >
+        <div className="justify-content-center position-relative bg-gradient-primary h-100  px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden d-flex align-items-center" style={{backgroundImage: `url('https://img.freepik.com/free-photo/hedge-fund-company-agents-workspace-reviewing-stock-market-prices-highs-lows-brokerage-company-employees-sitting-multi-monitor-workstation-while-analyzing-trading-index_482257-44529.jpg?w=740&t=st=1688977393~exp=1688977993~hmac=a6c72764ba2861af6255aed36e306136f534493128d6984cfffa21695fb47f55')`,backgroundSize: 'cover'}} >
                 <span className="mask bg-gradient-primary opacity-6"></span>
                 {/* <img src="../../../public/logo.jpg" className="navbar-brand-img h-100" alt="main_logo"/> */}
                 <h3 className="mt-5 text-white font-weight-bolder position-relative">Welcome</h3>

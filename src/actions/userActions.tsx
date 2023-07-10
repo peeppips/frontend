@@ -55,8 +55,11 @@ export const login = (loginB: { email: string, password: string }) => async (dis
     })
 
     localStorage.setItem('userInfo', JSON.stringify(data))
+    const sessionKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'; // Replace with your desired session key
+    const userToken = data.token; // Assuming 'data' contains the user token
+    const stringifiedUserToken = JSON.stringify(userToken);
+    window.sessionStorage.setItem(sessionKey, stringifiedUserToken);
 
-    
   } catch (error) {
    
     dispatch({

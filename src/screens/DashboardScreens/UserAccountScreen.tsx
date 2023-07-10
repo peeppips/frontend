@@ -11,13 +11,14 @@ import DashboardSidebar from "./components/Sidebar";
 
 import { createAccount, getAccountsByUser } from "../../actions/accountActions";
 import {  getAllReferals, getReferalByUser } from "../../actions/referralActions";
-import { Input, Modal } from "antd";
+import { Drawer, Input, Modal, Popconfirm } from "antd";
 import { getServersByBroker } from "../../actions/serverActions";
 import { getAllAccounts } from "../../actions/accountActions";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import TopBarComponent from "./components/TopBarComponent";
-
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { deleteReferral } from "../../actions/referralActions";
 
  const UserAccountScreen = () => {
   const [broker_selected, setBroker] = useState('')
@@ -110,7 +111,6 @@ console.log("referrals is ",referrals);
   // Fetch the updated list of brokers
   await (dispatch as ThunkDispatch<any, any, AnyAction>)(getReferalByUser(userInfo?.uid));
 
-  setIsModalAccountOpen(true)
   };
 
   // const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
@@ -146,13 +146,7 @@ console.log("referrals is ",referrals);
 
   
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setAccount((prevAccount) => ({
-      ...prevAccount,
-      [name]: value,
-    }));
-  };
+
 
   const handleAccountSubmit = (event: { preventDefault: () => void; }) => {
     event.preventDefault();
@@ -186,6 +180,103 @@ console.log("referrals is ",referrals);
   const { loading, error } = accountByUser
 
 
+  const [open, setOpen] = useState(false);
+
+  const showDrawer = (accountDetails:any,) => {
+    console.log(accountDetails)
+    setFormData(accountDetails)
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+
+  const confirm = async (id:string) => {
+    try {
+  
+       await (dispatch as ThunkDispatch<any, any, AnyAction>)(deleteReferral(id));
+
+       await (dispatch as ThunkDispatch<any, any, AnyAction>)(getReferalByUser(userInfo?.uid));
+        
+    } catch (error) {
+      
+    }  
+    }
+
+    const [formData, setFormData] = useState({
+      firstName: '',
+      secondName: '',
+      email: '',
+      accounts:[{
+        login:"",
+        takeProfit:"",
+        stopLoss:"",
+        lotSize:"",
+        broker:"",
+        password:"",
+        investorPassword:"",
+        server:""
+
+      }]
+    });
+  
+ 
+  
+    const handleUpdateSubmit = async (e: { preventDefault: () => void; }) => {      e.preventDefault();
+      // Handle form submission
+      console.log(formData);
+    };
+
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+      const { name, value } = e.target;
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value
+      }));
+    };
+  
+    const handleAccountChange = (e: { target: { name: any; value: any; }; }, index: number) => {
+      const { name, value } = e.target;
+      const updatedAccounts = [...formData.accounts];
+      updatedAccounts[index] = {
+        ...updatedAccounts[index],
+        [name]: value
+      };
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        accounts: updatedAccounts
+      }));
+    };
+    
+  
+    const handleAddAccount = () => {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        accounts: [...prevFormData.accounts, {
+          login: '',
+          takeProfit: '',
+          stopLoss: '',
+          lotSize: '',
+          broker: '',
+          password: '',
+          investorPassword: '',
+          server: ''
+        }]
+      }));
+    };
+  
+    const handleRemoveAccount = (index: number) => {
+      const updatedAccounts = [...formData.accounts];
+      updatedAccounts.splice(index, 1);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        accounts: updatedAccounts
+      }));
+    };
+
+    
     return(
             <>
               <div className="min-height-300 bg-primary position-absolute w-100"></div>
@@ -212,7 +303,7 @@ console.log("referrals is ",referrals);
           <div className="card ">
             <div className="card-header pb-0 p-3">
               <div className="d-flex justify-content-between">
-                <h6 className="mb-2">User Accounts (0)</h6>
+                <h6 className="mb-2">User Accounts ({referrals && <>{referrals.length}</>})</h6>
                 <Button  onClick={showModal} variant="primary">Add</Button>
 
               </div>
@@ -242,8 +333,16 @@ console.log("referrals is ",referrals);
               <td>{referral.firstName}</td>
               <td>{account.login}</td>
               <td>
-              <Button variant="warning">Edit</Button>
-              <Button variant="danger">Delete</Button>
+              <Button variant="warning" onClick={()=>showDrawer(referral)} >Edit</Button>
+              <Popconfirm
+                                    title="Delete the Account"
+                                    description="Are you sure to delete this task?"
+                                    onConfirm={() => confirm(referral?.id?.toString())}
+
+                                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                                  >
+                                    <Button variant="danger">Delete</Button>
+                                  </Popconfirm>  
               </td>
             </tr>
           ));
@@ -537,6 +636,70 @@ console.log("referrals is ",referrals);
     
       </Modal>
 
+      <Drawer title="Project Edit" placement="right" onClose={onClose} open={open}>
+      <Form onSubmit={handleUpdateSubmit} style={{ maxWidth: 600 }} className="mb-3">
+      <Form.Group controlId="firstName">
+        <Form.Label>First Name</Form.Label>
+        <Form.Control
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
+      <Form.Group controlId="secondName">
+        <Form.Label>Second Name</Form.Label>
+        <Form.Control
+          type="text"
+          name="secondName"
+          value={formData.secondName}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
+      <Form.Group controlId="email">
+        <Form.Label>Email</Form.Label>
+        <Form.Control
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+      </Form.Group>
+      <hr />
+      <h5>Accounts</h5>
+
+      {formData.accounts.map((account, index) => (
+        <div key={index}>
+          <Form.Group controlId={`login${index}`}>
+            <Form.Label>Login</Form.Label>
+            <Form.Control
+              type="text"
+              name="login"
+              value={account.login}
+              onChange={(e) => handleAccountChange(e,index)}
+            />
+          </Form.Group>
+
+          {/* Add other account fields here */}
+          {/* e.g., Take Profit, Stop Loss, Lot Size, Broker, Password, Investor Password, Server */}
+
+          <Button variant="danger" onClick={() => handleRemoveAccount(index)}>
+            Remove Account
+          </Button>
+
+          <hr />
+        </div>
+      ))}
+
+      <Button variant="primary" onClick={handleAddAccount}>
+        Add Account
+      </Button>
+
+      <Button type="submit">Update</Button>
+    </Form>
+        </Drawer>
             </>
   
     )

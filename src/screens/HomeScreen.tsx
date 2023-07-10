@@ -12,7 +12,7 @@ const HomeScreen: React.FC = () => {
     <div className="justify-content-center position-relative bg-gradient-primary h-100  px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden d-flex align-items-center" style={{backgroundImage: `url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg')`,backgroundSize: 'cover'}} >
                 <span className="mask bg-gradient-primary opacity-6"></span>
                 <img src="../../../public/logo.jpg" className="navbar-brand-img h-100" alt="main_logo"/>
-                <h1 className="mt-5 text-white font-weight-bolder position-relative">"Attention is the new currency"</h1>
+                <h1 className="mt-5 text-white font-weight-bolder position-relative">"Powering Your Trading Success"</h1>
                 <h5 className="text-white position-relative">The more effortless the writing looks, the more effort the writer actually put into the process.</h5>
                 <Link to='/login'>
                 <Button >
