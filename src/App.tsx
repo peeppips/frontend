@@ -25,6 +25,7 @@ import CreditsScreen from './screens/DashboardScreens/CreditsScreen';
 import UserAccountScreen from './screens/DashboardScreens/UserAccountScreen';
 import DashboardIndex from './screens/DashboardScreens/HomeScreen';
 import { useEffect } from 'react';
+import Notification from './components/Notification';
 
 
 function App() {
@@ -45,7 +46,7 @@ function App() {
       <Router>
      
         <main >
-         
+        <Notification />
             <Routes>
               <Route path='/' element={<LoginScreen />} />
               <Route path='/register' element={<RegisterScreen />} />

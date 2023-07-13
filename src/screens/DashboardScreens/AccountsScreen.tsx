@@ -325,15 +325,7 @@ const AccountsScreen = () => {
 
       </main>
 
-      <Modal title="Add Account" open={isModalOpen} onCancel={handleCancel}
-        footer={[
-          <Button variant="primary" type="submit" onClick={handleSubmit}>
-            Submit
-          </Button>
-        ]}
-
-
-      >
+      <Modal title="Add Account" open={isModalOpen} onCancel={handleCancel}>
 
 <Form onSubmit={handleSubmit}>
       

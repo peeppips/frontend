@@ -20,7 +20,6 @@ import { AnyAction } from 'redux';
 import { USER_LOGIN_FAIL } from '../constants/userConstants';
 import { Row } from 'react-bootstrap';
 
-
 const auth = getAuth(app);
 console.log(auth)
 
@@ -144,7 +143,10 @@ useEffect(() => {
                       <button  type='submit' className="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in</button>
                     </div>
                   </form>
+
                   <Row>
+                
+
                 <div className="col-12 px-1">
                 <div className="text-center mt-4">
                   <b>OR</b>
