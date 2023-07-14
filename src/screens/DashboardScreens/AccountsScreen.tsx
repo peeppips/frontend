@@ -325,9 +325,14 @@ const AccountsScreen = () => {
 
       </main>
 
-      <Modal title="Add Account" open={isModalOpen} onCancel={handleCancel}>
+      <Modal title="Add Account" open={isModalOpen} onCancel={handleCancel}
+       footer={[   <Button variant="primary" onClick={handleSubmit} className="w-100" >
+       Submit
+     </Button>]}
+       >
+      
 
-<Form onSubmit={handleSubmit}>
+<Form>
       
       <Form.Group controlId="login">
         <Form.Label>Login</Form.Label>
@@ -437,11 +442,6 @@ const AccountsScreen = () => {
       </>
         
       </Form.Group>
-
-     
-      <Button variant="primary" type="submit" className="w-100" >
-      Submit
-    </Button>
    
     </Form>
 

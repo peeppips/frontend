@@ -42,7 +42,7 @@ const DashboardSidebar = () => {
         </Link>
       </div>
       <hr className="horizontal dark mt-0"/>
-      <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <>{accounts && <> <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul className="navbar-nav">
           <li className="nav-item">
           <Link className={location.pathname === "/dashboard" ? "nav-link active" : "nav-link"} to="/dashboard">
@@ -154,7 +154,8 @@ const DashboardSidebar = () => {
           </li>
 
         </ul>
-      </div>
+      </div> </>}</> 
+     
     
     </aside>
     )

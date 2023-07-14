@@ -81,7 +81,7 @@ export const deleteProject = (projectId: any) => async (dispatch: (arg0: { type:
   try {
     dispatch({ type: DELETE_PROJECT_REQUEST });
 
-    await axios.delete(`http://localhost:5000/api/projects/${projectId}`);
+    await axios.delete(`https://peeppipsbackend.onrender.com/api/projects/${projectId}`);
 
     dispatch({
       type: DELETE_PROJECT_SUCCESS,
